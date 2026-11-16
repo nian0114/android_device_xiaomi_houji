@@ -37,3 +37,26 @@ debugcc 两项虽未导出 OF alias，但其 ELF 中的平台匹配字符串可�
 导入接口显示注册 platform driver，没有自建 platform device 的导入。
 houji 的 Pineapple/Pineapplep 时钟、互联与 UFS 驱动仍保留。
 
+## 未使用的替代外设：移除 10 个名称
+
+| 模块 | 未匹配到的硬件 |
+| --- | --- |
+| stm_nfc_i2c | st,st21nfc |
+| stm_st54se_gpio | st,st54spi_gpio |
+| cs35l43_dlkm | cirrus,cs35l43 |
+| aw882xx_dlkm | awinic,aw882xx_smartpa / foursemi,fs16xx |
+| fs19xx_dlkm | foursemi,fs16xx |
+| sia91xx_dlkm | si,sia81xx / sia91xx 及其芯片变体 |
+| tfa986x_dlkm | tfa98xx / awinic,aw884xx_smartpa |
+| tlv320aic3x_dlkm | TI tlv320aic3x 家族 / tas5411 |
+| tef668x_dlkm | nxp,tef668x |
+| radio-i2c-rtc6226-qca | rtc6226 / rtc6226-fmtuner |
+
+这些驱动的 OF alias、legacy I2C ID 以及补查的 compatible 字符串
+在全部合并树中均无匹配（包括禁用节点），原厂模块反向依赖为空。
+其导入接口未发现自行创建 I2C client / platform device 的入口。
+
+保留有活动节点的 NXP nxp-nci 和原厂 cs35l41_dlkm，并保留
+fsa4480-i2c、WCD/WSA、SoundWire 等音频基础模块；后者可能由 machine
+驱动或自定义总线使用，不能因缺少普通 OF alias 删除。
+
