@@ -16,6 +16,10 @@ LineageOS；MiCode 6.1.25 源码及外置驱动移植保留为可选开发路径
 - vendor ramdisk 的 340 个模块，保留 boot/recovery 加载清单与 blocklist。
 - vendor_dlkm 的 313 个模块、system_dlkm 的 60 个模块及原始依赖元数据。
 
+用户空间编译需要的 UAPI 头文件仍从 MiCode 源码执行 headers_install 导出；
+通过 TARGET_FORCE_PREBUILT_KERNEL 保证 Image 使用原厂文件，不编译源码内核
+或源码模块。这些头文件用于编译用户空间，不替换原厂模块的 KMI 数据。
+
 不复用原厂整个 ramdisk、boot.img 或 vendor_boot.img。
 Lineage 仍生成 init_boot、vendor_boot、recovery 以及 AVB 信息。
 ramdisk/recovery 模块通过 Android 的 BOARD_*_KERNEL_MODULES 接口安装，

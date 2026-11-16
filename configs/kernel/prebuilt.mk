@@ -2,9 +2,14 @@
 
 HOUJI_STOCK_KERNEL := vendor/xiaomi/houji/kernel/stock
 
-# Explicitly disable auto-discovery of kernel/xiaomi/houji.
-TARGET_KERNEL_SOURCE :=
+# Userspace components still require exported kernel UAPI headers. Generate
+# headers from MiCode, while forcing the boot kernel to the stock binary.
+TARGET_KERNEL_SOURCE := kernel/xiaomi/houji
+TARGET_KERNEL_CONFIG := gki_defconfig
 TARGET_KERNEL_VERSION := 6.1
+TARGET_KERNEL_CLANG_VERSION := r547379
+KERNEL_NO_GCC := true
+TARGET_FORCE_PREBUILT_KERNEL := true
 TARGET_PREBUILT_KERNEL := $(HOUJI_STOCK_KERNEL)/Image
 BOARD_PREBUILT_DTBIMAGE_DIR := $(HOUJI_STOCK_KERNEL)/dtb
 BOARD_PREBUILT_DTBOIMAGE := $(HOUJI_STOCK_KERNEL)/dtbo.img
