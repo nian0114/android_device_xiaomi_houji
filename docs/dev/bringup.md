@@ -19,15 +19,20 @@
 配置不复制旧预编译 Image 或 stock `.ko`，不跳过缺失模块。
 
 当前选用主树已有的 Clang `r547379`。MiCode 原构建配置使用 `r487747c`，
-工具链兼容性仍需在源码完整后实际编译确认，必要时切换原版工具链。
+已用该工具链验证 hwid 对象编译；完整树仍有上述格式类型错误，后续需修正或复核原版工具链。
 
 ## 已知源码阻塞
 
 **当前不是可刷机版本，源码内核尚未编译成功。**
 
-官方发布的 `drivers/misc/Kconfig` 引用了不存在的
-`drivers/misc/hwid/Kconfig`，`CONFIG_MI_HARDWARE_ID` 对应实现也缺失。
-配置生成已在此处失败，不能用空文件、假模块或简单删除驱动来视作修复。
+官方发布原来缺少的 `drivers/misc/hwid` 已恢复真实实现，并移除了该目录的 Git 忽略规则。
+实现有固定的公开来源，按国际版 stock 模块校准 houji 项目号、参数、位域和 sysfs 接口；
+来源与接口说明见 `kernel/xiaomi/houji/docs/dev/hwid.md`。
+内核配置生成与 `hwid.o` 编译已通过，9 个导出函数名与 stock 模块一致。
+
+完整 Image/modules 编译目前在 WALT、Gunyah、MHI、irqchip、QRTR 等已有代码中
+遇到 `-Werror=format` 格式类型错误；直接调用方 `wcd939x-i2c.c` 也存在同类错误。
+这些编译问题与恢复 hwid 缺失源码是不同的修复项，尚未生成可加载模块或可刷机内核。
 
 `lineage.dependencies` 会下载同分支官方 DTS、相机、WLAN 与显示 DTS，
 其中外置源码目前作为移植输入，尚未接入完整模块和 techpack DTS 合并构建。
@@ -73,5 +78,5 @@ m kernel
 m bacon
 ```
 
-目前产品配置解析通过；内核配置在上面的缺失 hwid 源码处失败。
+目前产品配置解析、内核配置生成与 hwid 对象编译通过；完整内核构建在上述已有格式错误处失败。
 完整 ROM 编译和真机启动尚未验证。
