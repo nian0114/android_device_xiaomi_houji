@@ -261,7 +261,6 @@ smcinvoke_dlkm.ko
 tz_log_dlkm.ko
 synx-driver.ko
 ipclite.ko
-ipclite_test.ko
 ubwcp.ko
 btpower.ko
 bt_fm_slim.ko
@@ -355,7 +354,6 @@ spcom.ko
 spss_utils.ko
 synx-driver.ko
 ipclite.ko
-ipclite_test.ko
 ubwcp.ko
 msm_video.ko
 msm_kgsl.ko

@@ -60,3 +60,25 @@ houji 的 Pineapple/Pineapplep 时钟、互联与 UFS 驱动仍保留。
 fsa4480-i2c、WCD/WSA、SoundWire 等音频基础模块；后者可能由 machine
 驱动或自定义总线使用，不能因缺少普通 OF alias 删除。
 
+## 已屏蔽的测试：移除 1 个名称
+
+ipclite_test.ko 已在设备的 modules.blocklist 明确屏蔽。
+原厂 vendor_modprobe.sh 会过滤该文件后再调用 modprobe，此测试模块也无原厂
+模块反向依赖。因而不再要求打包它；保留真正的 ipclite.ko，
+它有活动 DT 节点，且 synx-driver 依赖它。
+
+## 暂时保留与验证边界
+
+- synaptics_tcm2 有活动触控节点，且依赖 xiaomi_touch。
+- msm_drm、msm_kgsl、相机、视频、DSP、音频框架和同步模块仍需补全源码。
+- miev、metis、mist、mi_schedule、mi_power、mpbe 等有原厂模块
+  反向依赖；不能把小米扩展整体当作无用的优化模块移除。
+- wl2866d、wl28661d 和 sia91xx_tuning 暂未找到活动 DT 匹配，
+  但仍需核查动态使用、用户空间接口和具体驱动实现，本轮保留。
+- 其他无 alias、无反向依赖的驱动仍可能提供字符设备、sysfs 或内核 hook，
+  没有足够证据的项目继续保留。
+
+此审计证明的是当前 ROM 与源码 DT 基线下的加载清单适用性；尚无真机启动、
+音频、NFC、相机等运行验证。后续更换 ROM / DT 或启用动态 overlay 时应重新核对。
+完整构建与剩余缺口记录在 bringup.md；临时 ELF/DT 解析结果保留在 out/houji-module-audit，
+不提交生成数据。
