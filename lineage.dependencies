@@ -1,0 +1,17 @@
+[
+  {
+    "repository": "nian0114/device_xiaomi_sm8650-common",
+    "target_path": "device/xiaomi/sm8650-common",
+    "branch": "lineage-23.2"
+  },
+  {
+    "repository": "nian0114/android_kernel_xiaomi_msm8650",
+    "target_path": "kernel/xiaomi/houji",
+    "branch": "shennong-u-oss"
+  },
+  {
+    "repository": "nian0114/android_vendor_xiaomi_houji",
+    "target_path": "vendor/xiaomi/houji",
+    "branch": "lineage-23.2"
+  }
+]

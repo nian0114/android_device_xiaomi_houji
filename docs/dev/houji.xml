@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="houji-github" fetch="https://github.com/" pushurl="ssh://git@github.com/" />
+  <project name="nian0114/android_device_xiaomi_houji" path="device/xiaomi/houji" remote="houji-github" revision="lineage-23.2" />
+  <project name="nian0114/device_xiaomi_sm8650-common" path="device/xiaomi/sm8650-common" remote="houji-github" revision="lineage-23.2" />
+  <project name="lolipuru/android_hardware_xiaomi" path="hardware/xiaomi" remote="houji-github" revision="lineage-23.2" />
+  <project name="nian0114/android_kernel_xiaomi_msm8650" path="kernel/xiaomi/houji" remote="houji-github" revision="shennong-u-oss" />
+  <project name="MiCode/kernel_devicetree" path="kernel/xiaomi/houji-devicetrees" remote="houji-github" revision="shennong-u-oss" />
+  <project name="MiCode/vendor_qcom_opensource_camera-kernel" path="kernel/xiaomi/houji-modules/camera" remote="houji-github" revision="shennong-u-oss" />
+  <project name="MiCode/vendor_qcom_proprietary_display-devicetree" path="kernel/xiaomi/houji-modules/display-devicetree" remote="houji-github" revision="shennong-u-oss" />
+  <project name="MiCode/vendor_qcom_opensource_wlan" path="kernel/xiaomi/houji-modules/wlan" remote="houji-github" revision="shennong-u-oss" />
+  <project name="nian0114/android_vendor_xiaomi_houji" path="vendor/xiaomi/houji" remote="houji-github" revision="lineage-23.2" />
+  <project name="nian0114/android_vendor_xiaomi_sm8650-common" path="vendor/xiaomi/sm8650-common" remote="houji-github" revision="lineage-23.2" />
+</manifest>
