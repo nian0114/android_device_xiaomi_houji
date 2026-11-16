@@ -36,9 +36,33 @@ and remaining load-list gaps are recorded in bringup.md.
 
 These Android 14-era sources are porting inputs for the Android 16 MIXM
 vendor baseline. Compilation does not validate HAL ioctl structures, DSP
-firmware interactions, camera sensors/OIS, secure camera sessions or device
-tree bindings. Device loading and hardware operation remain unverified.
+firmware interactions, camera sensors/OIS, secure camera sessions or hardware operation.
+Device loading and hardware operation remain unverified.
 
 Upstream dependency pins do not include unpublished local driver fixes.
 Publish camera and DSP port commits to maintained forks and update manifest
 and dependency revisions together before relying on a fresh repo sync.
+
+## Camera device-tree integration
+
+The core MiCode DT release had no active camera driver matches in the
+product merged trees. kernel/xiaomi/houji-devicetrees now includes the common
+Pineapple camera nodes and actual houji sensor descriptions from MiCode
+camera-devicetree, pinned in houji.xml and the kernel dependencies. That input
+comes from aurora-u-oss because no shennong-u-oss branch exists there; the
+integration uses houji files, not aurora sensor wiring.
+
+Full upstream dtbs compilation passes. Both pineapple and pineapple-v2 accept
+the houji overlay using fdtoverlay. Each merged tree has 47 active camera,
+two FastRPC and one CDSP-loader matches against the built module OF aliases.
+For camera's 47 matched node paths, 917 compared properties match the
+corresponding stock MIXM variants after provider phandle normalization,
+including GPIO tuples, supplies and clock providers/IDs. Cross-version
+comparison differs only in the expected IPE clock-rate table. This is a
+description comparison; provider behavior, firmware and HAL compatibility
+still require runtime validation.
+
+The temporary comparison output is under out/houji-camera-dt-validation;
+it is not a committed test fixture. The camera DT header fix and core DT
+integration, like driver fixes, must be published to maintained forks before
+upstream input pins can reproduce the working checkout.
