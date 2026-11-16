@@ -30,7 +30,8 @@ system 清单按高通 houji 的适用性移除了 `gzvm.ko`：它是 MediaTek G
 `wwan.ko` 则通过源码配置 `CONFIG_WWAN=m` 正常构建，模块缺失检查保持启用。
 调整后的 system 清单共 59 项，产品构建已将其全部安装到 system_dlkm；
 vendor 等后续清单仍需按下文所述补齐外置驱动，不能据此认定整个内核打包完成。
-配置不复制旧预编译 Image 或 stock `.ko`，不跳过缺失模块。
+Image 保持源码编译；仅对逐项验证的原厂模块启用受控回退，见
+[预编译模块接入](prebuilt-modules.md)。缺失模块检查保持启用。
 
 当前选用主树已有的 Clang `r547379`。MiCode 原构建配置使用 `r487747c`。
 已保留 `CONFIG_WERROR=y`、CFI 和模块版本检查，修正原始代码中的类型/格式错误，
@@ -64,13 +65,15 @@ vendor 等后续清单仍需按下文所述补齐外置驱动，不能据此认�
 `lineage.dependencies` 会下载同分支官方 DTS、相机、WLAN 与显示 DTS，
 WLAN、securemsm、IPA 和 RMNET 已通过 device 内的 wrapper 接入 `TARGET_KERNEL_EXT_MODULES`；
 其他外置驱动及 techpack DTS 合并仍在移植。
-仍需补全与平台版本匹配的显示、音频、GPU、视频、SPSS 等外置模块源码和构建配置。
+显示与同步驱动链已接入源码构建；仍需补全与平台版本匹配的音频、GPU、视频、
+相机、SPSS 等外置模块源码和构建配置。
 新 ROM 的模块清单还包含旧源码未必提供的模块；必须补全实现并核对依赖。
 
 当前源码为 6.1.25；新固件 system 模块标记为 6.1.157，抽查 vendor 模块标记为 6.1.68。
 不能仅凭版本号认定 KMI 兼容或不兼容。
 需要完成适当的源码更新/移植、KMI 与符号检查、模块构建及 DT 合并，再进行真机验证。
-当前不复用新固件模块来掩盖上述问题。
+原厂模块仅在哈希、架构、vermagic 标志和全部导入符号 CRC 检查通过后安装；
+目前选择 miev 与 nxp-nci 两项，仍需真机核对实际接口和运行行为。
 
 ## Vendor 重提取
 
@@ -141,7 +144,7 @@ datarmnet 和 datarmnet-ext。manifest 仍固定公开上游输入；本地 port
 完整产品依赖验证；正式产品构建和模块打包结果单独记录在下文。
 本轮不增加单元测试，验证使用真实编译、链接和模块安装。
 
-### 产品构建结果（2026-11-16，适用性核对后）
+### 网络驱动与适用性核对阶段（2026-11-16，历史快照）
 
 `m -j24 kernel` 已通过 Soong、Kati，完成 Image、DTB、内核模块及上述
 全部外置模块的编译和安装；本轮 kernel release 为 `6.1.25-g7cbc6862bbca`。
@@ -181,3 +184,47 @@ vendor 缺口由最初 143 项、网络驱动接入后的 107 项降至 91 项�
 当前 release 的缺口明细：out/houji-kernel-network-module-gaps.json。
 本轮前后对比与临时分析：out/houji-module-audit/。
 这些验证产物及临时脚本保留在 out，不提交进源码。
+
+
+### 多媒体源码与受控原厂模块接入（2026-11-16，最新结果）
+
+Image 继续由 MiCode 源码构建；本轮 release 为 `6.1.25-g23e4425353c8`。
+新增源码驱动已通过正式产品构建的编译、modpost、链接、BTF 与安装：
+msm-mmrm、msm_hw_fence、sync_fence、msm_ext_display、synx-driver、ipclite
+和 msm_drm。上游 Kbuild 也会生成 ipclite_test；它仍被 blocklist 屏蔽，
+未重新加入要求清单。接入和来源见 [多媒体模块接入](multimedia-modules.md)。
+
+另外安装国际版原始 miev.ko 与 nxp-nci.ko，二者均通过哈希、AArch64 ELF、
+vermagic 标志和全部导入 CRC 检查，安装后的 SHA-256 与原厂文件一致。
+没有修改它们的 vermagic、CRC 或二进制内容。MIEV 在当前源码配置中未启用，
+源码 qcom-hv-haptics 不导入事件 API；不注入无实际消费者的核心链接依赖。
+校验边界见 [预编译模块接入](prebuilt-modules.md)。
+
+本 release 的完整暂存目录共有 384 个不同的 .ko：
+382 个源码生成、2 个原厂文件；没有重名文件。对完整目录执行
+`depmod -e -F System.map` 返回 0，且输出为空。
+正式分区打包中仍有 modules.order / modules.builtin 元数据警告；
+该完整目录依赖检查不能替代尚未完成的分区打包验证。
+Image 为 33,823,232 字节，DTB 已生成。
+
+| 加载清单 | 条目行数 | 去重要求模块数 | 未生成模块数（去重） |
+| --- | ---: | ---: | ---: |
+| boot | 119 | 119 | 13 |
+| recovery | 325 | 324 | 37 |
+| system | 59 | 59 | 0 |
+| vendor | 359 | 297 | 83 |
+
+全部清单去重后仍缺 96 个名称，比上一阶段的 105 项减少 9 项；
+vendor 清单缺口从 91 项减少至 83 项。仍保留的缺口包括音频框架/codec、
+GPU、相机、视频、触控、DSP/SPSS 和部分 Xiaomi 扩展。
+这些是当前清单与产物的差距，并非已经证明 96 项全部必须保留；
+原适用性审计中证据不足的项目还要继续逐项核查。
+
+`m -j24 kernel` 用时 5 分 21 秒，最终因剩余要求模块缺失返回 1；
+本轮没有生成产品 dtbo.img。完整 ROM 打包和真机启动、显示、NFC 等功能仍未验证。
+
+日志：out/houji-kernel-multimedia-integrated.log。
+当前 release 的缺口、预编译哈希及依赖结果：
+out/houji-kernel-multimedia-module-gaps.json。
+完整暂存目录 depmod 输出：out/houji-prebuilt-audit/depmod-multimedia.log。
+这些生成物和临时审计脚本保留在 out，不提交到工程。

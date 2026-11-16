@@ -11,6 +11,9 @@ The source-kernel external module sequence now includes:
 
 The adapters reside in configs/kernel/modules and use Lineage's existing
 external-module interface. No Lineage build-system changes are needed.
+The three added source repositories guard their legacy Android.mk entry
+points on the presence of Qualcomm DLKM infrastructure; Lineage otherwise
+uses the adapters and owns module installation.
 MMRM builds only its driver directory. Synx currently follows its upstream
 Kbuild, including compilation of ipclite_test; the test remains blocked and
 is absent from the required load lists.
@@ -27,7 +30,11 @@ Pins identify upstream inputs. Local driver fixes remain unpublished port
 commits and must be pushed to maintained forks, with pins updated, for a
 fresh checkout to reproduce the patched builds.
 
-The individual source drivers pass compilation, modpost, linking and BTF.
+The individual source drivers and the integrated product build pass source
+compilation, modpost, linking, BTF and module installation. The current
+release stages 382 source modules plus two original stock files, with no
+duplicate module names and no unresolved imports in the complete staging
+directory depmod check. Packaging still fails on 96 unique required names.
 Full product staging and missing-module results are recorded in bringup.md.
 Neither static ABI checks nor source compilation constitute device validation:
 the Android 16 MIXM HAL/firmware interfaces may differ from these Android 14

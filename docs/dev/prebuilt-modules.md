@@ -45,6 +45,12 @@ with identical CRCs, including module_layout. Installing them alongside the
 The adapter also rejects the actual stock Synaptics module on unavailable
 Xiaomi interfaces rather than silently installing it.
 
+The integrated check against 6.1.25-g23e4425353c8 also passes both stock
+modules' imports and original hashes. The complete staging directory has
+382 source modules plus these two files, and depmod reports no unresolved
+symbols. This is still a build-time result; packaging and device behavior
+remain unverified.
+
 A broader initial scan of the 105 missing names found 45 with no missing
 versioned import or CRC conflict against current source exports. Eight have
 CRC conflicts and 58 have unavailable versioned imports; those groups overlap.

@@ -1,5 +1,9 @@
 # houji 模块加载清单适用性核对
 
+本文记录接入多媒体源码与受控原厂模块之前的适用性审计快照；
+后续已补齐的模块及最新缺口见 [开发基线](bringup.md) 和
+[多媒体模块接入](multimedia-modules.md)。本次审计删除的 21 项及其依据仍然有效。
+
 ## 范围与方法
 
 基线为国际版 Fastboot 包 OS3.0.305.0.WNCMIXM，与当前 vendor 提取基线一致。
@@ -67,7 +71,7 @@ ipclite_test.ko 已在设备的 modules.blocklist 明确屏蔽。
 模块反向依赖。因而不再要求打包它；保留真正的 ipclite.ko，
 它有活动 DT 节点，且 synx-driver 依赖它。
 
-## 剩余 105 项的保留依据
+## 审计时剩余 105 项的保留依据
 
 以下按优先顺序分类，名称去重且各行互斥。它们是当前保留依据，
 并不表示每个驱动都已被证实为开机的硬性依赖。
@@ -111,7 +115,8 @@ wl2866d.ko
 ## 暂时保留与验证边界
 
 - synaptics_tcm2 有活动触控节点，且依赖 xiaomi_touch。
-- msm_drm、msm_kgsl、相机、视频、DSP、音频框架和同步模块仍需补全源码。
+- 审计时 msm_drm、msm_kgsl、相机、视频、DSP、音频框架和同步模块待接入；
+  后续显示与同步模块已接入源码，最新结果见 bringup.md。
 - miev、metis、mist、mi_schedule、mi_power、mpbe 等有原厂模块
   反向依赖；不能把小米扩展整体当作无用的优化模块移除。
 - wl2866d、wl28661d 和 sia91xx_tuning 暂未找到活动 DT 匹配，
