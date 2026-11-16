@@ -11,13 +11,8 @@ pinctrl-spmi-mpp.ko
 pwm-qti-lpg.ko
 pci-msm-drv.ko
 qcom-spmi-wled.ko
-debugcc-cliffs.ko
 debugcc-pineapple.ko
-debugcc-volcano.ko
-camcc-volcano.ko
 gpucc-cliffs.ko
-gpucc-volcano.ko
-videocc-volcano.ko
 bam_dma.ko
 msm_gpi.ko
 qcom_cpuss_sleep_stats.ko
