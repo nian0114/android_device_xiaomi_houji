@@ -56,15 +56,15 @@ vendor 等后续清单仍需按下文所述补齐外置驱动，不能据此认�
 
 完整 `dtbs` 目标通过；`pineapple.dtb`、`pineapple-v2.dtb` 与 houji 专用 DTBO 均可生成，
 并已用 `fdtoverlay` 验证 houji overlay 能应用到两个基础 DTB。官方 DTS 仍有 DTC 警告。
-国际版加载清单与这次产物按文件名对比，有 164 个去重模块名未生成；boot/recovery/system/vendor
+最初 standalone 构建与国际版加载清单按文件名对比，有 164 个去重模块名未生成；boot/recovery/system/vendor
 各清单分别为 19/61/2/143 个，彼此存在重叠。需要逐项区分内建功能、配置差异和待移植外置驱动，
 不能把文件名差距直接视为全部功能缺失，也不能通过跳过缺失检查来宣称打包成功。
 本地差距清单为 `out/houji-kernel-module-gaps.json`。
 
 `lineage.dependencies` 会下载同分支官方 DTS、相机、WLAN 与显示 DTS，
-WLAN 公共模块已通过 device 内的 wrapper 接入 `TARGET_KERNEL_EXT_MODULES`；
+WLAN、securemsm、IPA 和 RMNET 已通过 device 内的 wrapper 接入 `TARGET_KERNEL_EXT_MODULES`；
 其他外置驱动及 techpack DTS 合并仍在移植。
-仍需补全与平台版本匹配的显示、音频、GPU、视频、安全及其他外置模块源码和构建配置。
+仍需补全与平台版本匹配的显示、音频、GPU、视频、SPSS 等外置模块源码和构建配置。
 新 ROM 的模块清单还包含旧源码未必提供的模块；必须补全实现并核对依赖。
 
 当前源码为 6.1.25；新固件 system 模块标记为 6.1.157，抽查 vendor 模块标记为 6.1.68。
@@ -108,20 +108,62 @@ m bacon
 ```
 
 目前产品配置解析、内核配置生成、完整 Image/modules、dtbs 和模块安装均通过。
-Lineage 产品内核打包、完整 ROM 编译和真机启动尚未验证，仍需解决上述模块与 vendor 接口差异。
+Lineage 产品内核打包仍被缺失模块阻塞；完整 ROM 编译和真机启动尚未通过，仍需解决模块与 vendor 接口差异。
 
-## WLAN 外部模块接入
+## WLAN、IPA 与 RMNET 外部模块接入
 
-`configs/kernel/modules/wlan-platform/Makefile` 读取 MiCode WLAN 仓库内的
-`pineapple_gki_defconfig`，通过 Lineage 现有外部模块接口执行构建和安装，
-不修改 `vendor/lineage`。目前接入 `cnss_nl`、`cnss_prealloc`、`cnss_utils`、
-`cnss_plat_ipc_qmi_svc`、`wlan_firmware_service`、`icnss2` 六个模块。
-其中 ICNSS2 暂时保留以匹配 stock 加载清单，其运行时适用性仍需 DT/真机核对。
-Pineapple 主 WLAN 驱动 CNSS2 依赖 securemsm/smcinvoke；待补齐该依赖后接入。
-QCACLD 的 `qca_cld3_kiwi_v2` 也尚未接入，因此不能视为 Wi-Fi 已可用。
+所有构建适配位于 `configs/kernel/modules/`，使用 Lineage 已有的外部模块接口，
+无需修改 `vendor/lineage/build/tasks/kernel.mk`。构建顺序为：
 
-产品 `m kernel` 已验证上述六个模块通过编译、modpost、BTF 和
-`modules_install`，位于当前 kernel release 的模块暂存目录。
-同时已安装新增的 `crc-itu-t.ko`、`hwmon.ko`，vendor 缺失检查从 143 降至 135，
-未修改加载清单或放宽检查。日志：`out/houji-kernel-wlan-integrated.log`。
-剩余模块仍导致产品内核打包失败，完整 ROM 和真机启动尚未通过。
+1. `securemsm`：安全调用、加密、HDCP、随机数和 SMMU proxy 模块。
+2. `wlan-platform`：MiCode Pineapple 配置的 CNSS2 与六个 WLAN 公共模块。
+3. `rmnet-mem`：IPA 和 RMNET 使用的内存模块。
+4. `dataipa`：GSI、IPA、IPANET 与上游配置包含的 IPA 测试模块。
+5. `rmnet-core`：蜂窝数据核心和控制模块。
+6. `rmnet-ext`：APS、offload、perf、perf_tether、scheduler、SHS 和 WLAN 扩展。
+7. `wlan`：MiCode `pineapple_gki_kiwi-v2` profile 的 `qca_cld3_kiwi_v2`。
+
+ICNSS2 暂时保留以匹配 stock 清单，其运行时适用性仍需结合 houji DT 核对。
+
+wrapper 传递真实头文件和上游模块的 `Module.symvers`，不使用空符号表或 stub。
+WLAN 启用驱动已有的 Android Common Kernel API 适配，并将 Kleaf profile 的
+`WIFI_MONITOR_SUPPORT_Y_WLAN_TX_MON_2_0` 映射到传统 Kbuild 的 `WLAN_TX_MON_2_0`，
+保留 TX monitor 实现。FTM 实现漏编、MLO 断连来源字段误用以及严格编译器报告的
+诊断类型问题均已在对应驱动仓库分别提交。
+
+新增源码的来源与固定版本见 `kernel/xiaomi/houji/docs/dev/external-modules.md`。
+`lineage.dependencies` 与 `docs/dev/houji.xml` 已包含 securemsm、dataipa、
+datarmnet 和 datarmnet-ext。manifest 仍固定公开上游输入；本地 porting 分支补丁
+尚需发布到维护的 fork 并同步更新 revision，不能认为仅同步上游就包含本地修复。
+
+各 wrapper 的源码编译、modpost、BTF 与 `modules_install` 均已通过。
+单独安装验证目录没有安装全部内核基础模块，所产生的 depmod 未解析警告不能作为
+完整产品依赖验证；正式产品构建和模块打包结果单独记录在下文。
+本轮不增加单元测试，验证使用真实编译、链接和模块安装。
+
+### 产品构建结果（2026-11-16）
+
+`m -j24 kernel` 已通过 Soong、Kati，完成 Image、DTB、内核模块及上述
+全部外置模块的编译和安装；产品 kernel release 为 `6.1.25-g6f40e13d84ee`。
+该 release 的模块暂存目录共 374 个源码 `.ko`，新增 Wi-Fi、IPA、RMNET、
+securemsm 和 CNSS2 均已安装，日志中没有编译错误或 depmod 未解析符号警告。
+对该完整暂存目录执行 `depmod -e -F System.map` 也已通过，未输出未解析符号；
+结果保存在 `out/houji-kernel-network-depmod.log`。
+
+产品命令最终仍因缺失清单项退出 1，尚未生成本轮产品 `dtbo.img`，不能作为可刷机版本。
+仅对当前 release 的暂存目录比较，结果如下；各清单缺失项存在重叠：
+
+| 加载清单 | 要求模块数 | 未生成模块数 |
+| --- | ---: | ---: |
+| boot | 124 | 19 |
+| recovery | 335 | 53 |
+| system | 59 | 0 |
+| vendor | 384 | 107 |
+
+全部清单共有 126 个不同的缺失模块名。vendor 的缺口由最初 143 项降为 107 项，
+加载清单和缺失检查保持启用。剩余项包括显示、相机、音频、GPU、视频、触摸、
+NFC 和 Xiaomi 扩展；其中还含其他平台的 stock 条目，需要结合 DT 和硬件逐项核对。
+
+完整构建日志：`out/houji-kernel-network-integrated.log`。
+当前 release 的缺口明细：`out/houji-kernel-network-module-gaps.json`。
+这些验证产物及临时脚本保留在 out，不提交进源码。
