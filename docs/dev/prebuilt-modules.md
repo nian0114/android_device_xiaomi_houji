@@ -1,6 +1,6 @@
 # Source kernel with selected stock modules
 
-The kernel Image and existing source drivers remain source-built. Four selected
+The kernel Image and existing source drivers remain source-built. Six selected
 modules currently use unmodified originals from global OS3.0.305.0.WNCMIXM:
 
 | Module | Reason | Original partition |
@@ -9,6 +9,8 @@ modules currently use unmodified originals from global OS3.0.305.0.WNCMIXM:
 | nxp-nci.ko | Active qcom,sn-nci hardware node | vendor_dlkm |
 | spcom.ko | Active qcom,spcom secure processor communication node | vendor_dlkm |
 | spss_utils.ko | Active qcom,spss-utils firmware/control node | vendor_dlkm |
+| btpower.ko | Stock qcom,kiwi Bluetooth power node | vendor_dlkm (late group) |
+| bt_fm_slim.ko | Stock slim217,221 Bluetooth audio endpoint | vendor_dlkm (late group) |
 
 The blobs, exact ROM archive name, partition provenance and SHA-256 hashes
 are versioned in vendor/xiaomi/houji/kernel/OS3.0.305.0.WNCMIXM/.
@@ -19,7 +21,7 @@ partitions and review/update the manifest and adapter together.
 
 ## Build integration
 
-The stock adapter runs before other external modules through the existing
+The bootstrap stock adapter runs before other external modules through the existing
 TARGET_KERNEL_EXT_MODULES interface. It checks each blob hash, relocatable
 AArch64 ELF format, vermagic flags and every imported symbol CRC against the
 current source Module.symvers. module_layout is required too.
@@ -113,3 +115,27 @@ The stock adapter runs before external source drivers, so each newly selected
 blob must still pass its production inputs at that point in the build. A
 broader screen including later source modules is only a candidate search,
 not a substitute for that check or runtime validation.
+
+## Late group and ordered provider validation
+
+The original four-module bootstrap group stays first because the display
+build reads its genuine miev export table. A separate stock-extra adapter
+runs after all source adapters. Its manifest is
+vendor/xiaomi/houji/kernel/OS3.0.305.0.WNCMIXM/extra/modules.json.
+It passes only the actual bootstrap and securemsm symbol tables in addition
+to the current core table. Providers therefore exist from this build before
+late consumers are checked; no old installed module tree is used as input.
+
+The verifier adds an original module's exports to its provider map only after
+that module's own imports, flags and bytes pass validation. Manifests must
+list providers before consumers. A missing provider, consumer-first order,
+self-dependency or cycle cannot satisfy imports. Duplicate exports and module
+entries are rejected. Each group retains a separately checked original export
+table and stages to its own directory; the bootstrap group remains unchanged.
+
+The Bluetooth late group orders btpower before bt_fm_slim. btpower uses the
+source-built securemsm provider; bt_fm_slim uses btpower and bootstrap miev.
+Hash, architecture, vermagic, full CRC and strong-import checks stay enabled.
+Bluetooth/SLIM DT descriptions are restored from the same actual MIXM merged
+trees, rather than guessing another phone's supplies or GPIOs. Production
+installation, DT checks and remaining runtime limits are recorded in bringup.md.

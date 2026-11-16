@@ -97,6 +97,8 @@ def main():
     parser.add_argument("--kernel-out", required=True, type=Path)
     parser.add_argument("--symvers", action="append", default=[], type=Path)
     parser.add_argument("--install-root", type=Path)
+    parser.add_argument("--group", default="houji-stock",
+                        choices=("houji-stock", "houji-stock-extra"))
     args = parser.parse_args()
     kernel = args.kernel_out.resolve()
     manifest = json.loads(args.manifest.read_text())
@@ -117,6 +119,8 @@ def main():
         path = args.manifest.parent / entry["file"]
         if path.name != entry["file"] or path.suffix != ".ko":
             raise ValueError("manifest module must be a .ko basename")
+        if path in verified:
+            raise ValueError(f"{path}: duplicate module in manifest")
         if hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]:
             raise ValueError(f"{path}: SHA-256 differs from stock baseline")
         elf = Elf(path)
@@ -126,7 +130,7 @@ def main():
             raise ValueError(f"{path}: vermagic flags differ: {flags}")
         for name, crc in elf.versions().items():
             if name not in exports:
-                raise ValueError(f"{path}: source does not export {name}")
+                raise ValueError(f"{path}: verified providers do not export {name}")
             if exports[name] != crc:
                 raise ValueError(f"{path}: CRC differs for {name}: "
                                  f"stock={crc:#x} source={exports[name]:#x}")
@@ -136,12 +140,15 @@ def main():
             if symbol[3] == 0 and symbol[1] >> 4 != 2 and name not in versions:
                 raise ValueError(f"{path}: unversioned strong import {name}")
         for name, crc, kind, namespace in elf.exports():
-            if name in exports or any(row[1] == name for row in exported):
+            if name in exports:
                 raise ValueError(f"{path}: duplicate export {name}")
             exported.append((crc, name, path.stem, kind, namespace))
+            # Only an earlier fully checked module may provide a later import.
+            # This rejects self-dependencies, cycles and consumer-first order.
+            exports[name] = crc
         verified.append(path)
 
-    generated = kernel / "houji-stock"
+    generated = kernel / args.group
     generated.mkdir(exist_ok=True)
     symvers = "".join(
         f"{crc:#010x}\t{name}\t{provider}\t{kind}\t{namespace}\n"
@@ -154,7 +161,7 @@ def main():
     (generated / "Module.symvers").write_text(symvers)
     release = (kernel / "include/config/kernel.release").read_text().strip()
     if args.install_root:
-        destination = args.install_root / "lib/modules" / release / "extra/houji-stock"
+        destination = args.install_root / "lib/modules" / release / "extra" / args.group
         destination.mkdir(parents=True, exist_ok=True)
         for path in verified:
             existing = [p for p in destination.parents[1].rglob(path.name)
