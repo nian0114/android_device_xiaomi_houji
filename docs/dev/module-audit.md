@@ -2,7 +2,8 @@
 
 本文记录接入多媒体源码与受控原厂模块之前的适用性审计快照；
 后续已补齐的模块及最新缺口见 [开发基线](bringup.md) 和
-[多媒体模块接入](multimedia-modules.md)。本次审计删除的 21 项及其依据仍然有效。
+[多媒体模块接入](multimedia-modules.md) 与 [相机/DSP 接入](camera-dsp-modules.md)。
+本次审计删除的 21 项及其依据仍然有效。
 
 ## 范围与方法
 
@@ -116,7 +117,7 @@ wl2866d.ko
 
 - synaptics_tcm2 有活动触控节点，且依赖 xiaomi_touch。
 - 审计时 msm_drm、msm_kgsl、相机、视频、DSP、音频框架和同步模块待接入；
-  后续显示与同步模块已接入源码，最新结果见 bringup.md。
+  后续显示、同步、相机和 FastRPC/CDSP 已接入源码，最新结果见 bringup.md。
 - miev、metis、mist、mi_schedule、mi_power、mpbe 等有原厂模块
   反向依赖；不能把小米扩展整体当作无用的优化模块移除。
 - wl2866d、wl28661d 和 sia91xx_tuning 暂未找到活动 DT 匹配，
@@ -128,3 +129,15 @@ wl2866d.ko
 音频、NFC、相机等运行验证。后续更换 ROM / DT 或启用动态 overlay 时应重新核对。
 完整构建与剩余缺口记录在 bringup.md；临时 ELF/DT 解析结果保留在 out/houji-module-audit，
 不提交生成数据。
+
+## 相机 DT 接入后的复核
+
+接入 houji 相机描述后，重新对最终 pineapple/pineapple-v2 合并树检查此前
+移除的 20 个硬件驱动的 OF alias、legacy I2C ID 和 debugcc 专用 compatible，
+均未发现匹配；ipclite_test 的 blocklist 保持不变。新增相机/DSP 模块已在
+当前 release 的完整暂存目录通过 depmod，无未解析符号。
+
+本表中的 105 项及分类是历史审计快照；当前已补齐相机、cameralog、
+FastRPC、CDSP 等模块，最新缺口为 92 个去重名称，见 bringup.md。
+旧 trees.json 中的源码合并树尚无相机节点；新树与检查报告位于
+out/houji-camera-dt-validation，不能用旧源码树代表当前 DT。

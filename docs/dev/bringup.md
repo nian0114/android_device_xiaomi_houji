@@ -65,8 +65,8 @@ Image 保持源码编译；仅对逐项验证的原厂模块启用受控回退�
 `lineage.dependencies` 会下载同分支官方 DTS、相机、WLAN 与显示 DTS，
 WLAN、securemsm、IPA 和 RMNET 已通过 device 内的 wrapper 接入 `TARGET_KERNEL_EXT_MODULES`；
 其他外置驱动及 techpack DTS 合并仍在移植。
-显示与同步驱动链已接入源码构建；仍需补全与平台版本匹配的音频、GPU、视频、
-相机、SPSS 等外置模块源码和构建配置。
+显示、同步、相机和 FastRPC/CDSP 驱动链已接入源码构建；仍需补全与平台版本匹配的
+音频、GPU、视频、触控、SPSS 等外置模块源码和构建配置。
 新 ROM 的模块清单还包含旧源码未必提供的模块；必须补全实现并核对依赖。
 
 当前源码为 6.1.25；新固件 system 模块标记为 6.1.157，抽查 vendor 模块标记为 6.1.68。
@@ -186,7 +186,7 @@ vendor 缺口由最初 143 项、网络驱动接入后的 107 项降至 91 项�
 这些验证产物及临时脚本保留在 out，不提交进源码。
 
 
-### 多媒体源码与受控原厂模块接入（2026-11-16，最新结果）
+### 多媒体源码与受控原厂模块接入（2026-11-16，历史快照）
 
 Image 继续由 MiCode 源码构建；本轮 release 为 `6.1.25-g23e4425353c8`。
 新增源码驱动已通过正式产品构建的编译、modpost、链接、BTF 与安装：
@@ -228,3 +228,66 @@ GPU、相机、视频、触控、DSP/SPSS 和部分 Xiaomi 扩展。
 out/houji-kernel-multimedia-module-gaps.json。
 完整暂存目录 depmod 输出：out/houji-prebuilt-audit/depmod-multimedia.log。
 这些生成物和临时审计脚本保留在 out，不提交到工程。
+
+### 相机、DSP 与相机设备树接入（2026-11-16，最新结果）
+
+Image 保持源码编译，当前 release 为 6.1.25-gafccd6677c77。
+本阶段新增四个源码模块：camera.ko、cameralog.ko、frpc-adsprpc.ko 和
+cdsp-loader.ko，均已在正式 m -j24 kernel 中完成编译、modpost、链接、BTF
+和安装。相机使用 MiCode shennong 源码；DSP 使用固定的高通 Pineapple
+公开版本。来源、适配和验证边界见 [相机与 DSP 接入](camera-dsp-modules.md)。
+
+分别修复相机诊断参数类型、DMA 地址输出、WLED 接口声明和 OIS 信息输出越界；
+DSP 修复 trace 头文件重入路径、诊断类型与缺少 Qualcomm DLKM 环境时的
+Android.mk 入口。保留严格编译检查、CFI、modversions 和缺失模块检查。
+实际 camera ELF 引用了 Synx、MMRM、SMMU proxy、WLED 接口，并声明
+securemsm 模块依赖。FastRPC 包含 CONFIG_COMPAT ioctl 实现与 RPMsg OF alias；
+核心的通用 CONFIG_QCOM_FASTRPC 未启用，避免双重绑定。
+
+核对发现原核心源码 DT 中相机活动匹配为 0。现接入 MiCode camera-devicetree
+内真实 houji 传感器描述和 Pineapple/v2 公共节点；该仓库无 shennong 分支，
+固定使用包含 houji 文件的 aurora-u-oss 输入，不使用 aurora 传感器接线。
+完整 dtbs 编译通过，两个产品 DTB 均能应用 houji overlay。
+最终合并树各有 47 个相机、2 个 FastRPC 和 1 个 CDSP-loader 活动匹配。
+相机的 47 个节点在解析 provider phandle 后，917 项比较属性与对应原厂
+DT 版本一致；跨 v1/v2 比较只差预期的 IPE clock-rates 表。
+此前删除的 20 个不适用硬件驱动在新源码 DT 上仍无 OF/legacy I2C 匹配；
+已 blocklist 的 ipclite_test 未重新加入要求清单。
+
+当前 release 的完整暂存目录共有 388 个不同的 .ko：
+386 个源码生成、2 个既有原厂模块；没有重名文件。
+完整目录的 depmod -e -F System.map 返回 0，输出为空。
+miev 与 nxp-nci 安装文件哈希仍与原始 ROM 一致；MIEV 核心配置仍关闭，
+源码 haptics 没有事件 API 导入。本阶段未增加新的预编译回退。
+Image 大小为 33,823,232 字节。
+
+| 加载清单 | 条目行数 | 去重要求模块数 | 未生成模块数（去重） |
+| --- | ---: | ---: | ---: |
+| boot | 119 | 119 | 13 |
+| recovery | 325 | 324 | 37 |
+| system | 59 | 59 | 0 |
+| vendor | 359 | 297 | 79 |
+
+全部清单去重后仍缺 92 个名称，比前一阶段 96 项减少 4 项；
+vendor 清单缺口由 83 降至 79。剩余主要为音频框架/codec、GPU、视频、
+触控、SPSS 和部分 Xiaomi 扩展。92 是清单与当前产物的差距，不代表
+每项已证明为必需；证据不足的项目继续逐项核查，不以跳过检查代替实现。
+
+正式产品命令用时 5 分 32 秒，最终仍因其余清单模块缺失返回 1；
+分区打包仍有 modules.order / modules.builtin 元数据警告，未生成产品 dtbo.img。
+完整暂存目录依赖通过不等于分区打包完成；尚未完成 ROM 或真机启动、
+HAL、传感器/OIS、DSP 固件及其他硬件运行验证。
+
+构建启动时另发现非交互环境 PATH 缺少 /home/nian/bin，roomservice
+曾找不到 repo。已安装当前 docs/dev/houji.xml 到本机 local_manifests、
+合并 roomservice 重复项目，并在独立配置验证中加入 repo 所在 PATH；
+repo manifest 解析及 lunch 均返回 0，无 traceback，也未执行 repo sync。
+未修改 Lineage 主树。上游依赖固定版本仍不含本地未推送补丁，需发布到
+维护的 fork 并同步更新 revision 后，才能在新 checkout 复现全部修复。
+
+正式构建日志：out/houji-kernel-camera-dsp-integrated.log。
+当前 release 缺口、哈希和 ELF 依赖：out/houji-kernel-camera-dsp-module-gaps.json。
+完整暂存目录 depmod 输出：out/houji-prebuilt-audit/depmod-camera-dsp.log。
+DT 合并与属性比较：out/houji-camera-dt-validation/report.json。
+更新后配置检查：out/houji-camera-dsp-lunch.log。
+临时脚本和这些验证产物保留在 out，不提交到工程。

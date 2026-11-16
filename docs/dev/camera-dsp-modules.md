@@ -36,7 +36,7 @@ and remaining load-list gaps are recorded in bringup.md.
 
 These Android 14-era sources are porting inputs for the Android 16 MIXM
 vendor baseline. Compilation does not validate HAL ioctl structures, DSP
-firmware interactions, camera sensors/OIS, secure camera sessions or hardware operation.
+firmware interactions, camera sensors/OIS or secure camera sessions.
 Device loading and hardware operation remain unverified.
 
 Upstream dependency pins do not include unpublished local driver fixes.
