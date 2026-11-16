@@ -18,21 +18,34 @@
 原始模块路径已规范化为文件名，以符合 Lineage 模块安装器的匹配方式。
 配置不复制旧预编译 Image 或 stock `.ko`，不跳过缺失模块。
 
-当前选用主树已有的 Clang `r547379`。MiCode 原构建配置使用 `r487747c`，
-已用该工具链验证 hwid 对象编译；完整树仍有上述格式类型错误，后续需修正或复核原版工具链。
+当前选用主树已有的 Clang `r547379`。MiCode 原构建配置使用 `r487747c`。
+已保留 `CONFIG_WERROR=y`、CFI 和模块版本检查，修正原始代码中的类型/格式错误，
+完整 `Image modules`、`dtbs` 和 `modules_install` 均已通过。
 
-## 已知源码阻塞
+## 编译结果与后续阻塞
 
-**当前不是可刷机版本，源码内核尚未编译成功。**
+**源码内核已经编译通过；当前仍不是经过验证的可刷机版本。**
 
 官方发布原来缺少的 `drivers/misc/hwid` 已恢复真实实现，并移除了该目录的 Git 忽略规则。
 实现有固定的公开来源，按国际版 stock 模块校准 houji 项目号、参数、位域和 sysfs 接口；
 来源与接口说明见 `kernel/xiaomi/houji/docs/dev/hwid.md`。
 内核配置生成与 `hwid.o` 编译已通过，9 个导出函数名与 stock 模块一致。
 
-完整 Image/modules 编译目前在 WALT、Gunyah、MHI、irqchip、QRTR 等已有代码中
-遇到 `-Werror=format` 格式类型错误；直接调用方 `wcd939x-i2c.c` 也存在同类错误。
-这些编译问题与恢复 hwid 缺失源码是不同的修复项，尚未生成可加载模块或可刷机内核。
+原先 WALT、Gunyah、MHI、irqchip、QRTR、音频切换及其他驱动的编译错误已按驱动分别提交修复。
+同时单独修复 QRTR 填充失败后的释放后读取、LED 编号误传地址及 MTD 枚举混用问题。
+顶层 Makefile 重复定义 DTS 构建规则的问题也已独立修复。
+
+代码提交 `56b6e8d9ecb5` 的完整构建通过 modpost 和 BTF，生成 33,823,232 字节的 `Image`，
+模块安装成功，共 335 个源码 `.ko`，包含真正的 AArch64 `hwid.ko` 及其 9 个预期导出接口。
+产物位于 `out/houji-kernel-check/`，模块安装目录为 `out/houji-kernel-modules/`。
+复现命令、日志与产物信息见 `kernel/xiaomi/houji/docs/dev/build.md`。
+
+完整 `dtbs` 目标通过；`pineapple.dtb`、`pineapple-v2.dtb` 与 houji 专用 DTBO 均可生成，
+并已用 `fdtoverlay` 验证 houji overlay 能应用到两个基础 DTB。官方 DTS 仍有 DTC 警告。
+国际版加载清单与这次产物按文件名对比，有 164 个去重模块名未生成；boot/recovery/system/vendor
+各清单分别为 19/61/2/143 个，彼此存在重叠。需要逐项区分内建功能、配置差异和待移植外置驱动，
+不能把文件名差距直接视为全部功能缺失，也不能通过跳过缺失检查来宣称打包成功。
+本地差距清单为 `out/houji-kernel-module-gaps.json`。
 
 `lineage.dependencies` 会下载同分支官方 DTS、相机、WLAN 与显示 DTS，
 其中外置源码目前作为移植输入，尚未接入完整模块和 techpack DTS 合并构建。
@@ -78,5 +91,5 @@ m kernel
 m bacon
 ```
 
-目前产品配置解析、内核配置生成与 hwid 对象编译通过；完整内核构建在上述已有格式错误处失败。
-完整 ROM 编译和真机启动尚未验证。
+目前产品配置解析、内核配置生成、完整 Image/modules、dtbs 和模块安装均通过。
+Lineage 产品内核打包、完整 ROM 编译和真机启动尚未验证，仍需解决上述模块与 vendor 接口差异。
