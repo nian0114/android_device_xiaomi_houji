@@ -2,6 +2,7 @@
 <manifest>
   <remote name="houji-github" fetch="https://github.com/" pushurl="ssh://git@github.com/" />
   <remote name="houji-clo" fetch="https://git.codelinaro.org/clo/la/" />
+  <remote name="houji-clo-mirror" fetch="https://github.com/CodeLinaro-mirror/" />
   <project name="nian0114/android_device_xiaomi_houji" path="device/xiaomi/houji" remote="houji-github" revision="lineage-23.2" />
   <project name="nian0114/device_xiaomi_sm8650-common" path="device/xiaomi/sm8650-common" remote="houji-github" revision="lineage-23.2" />
   <project name="lolipuru/android_hardware_xiaomi" path="hardware/xiaomi" remote="houji-github" revision="lineage-23.2" />
@@ -17,4 +18,7 @@
   <project name="platform/vendor/opensource/dataipa" path="kernel/xiaomi/houji-modules/dataipa" remote="houji-clo" revision="723906905cbf3e7a59ec8924e9d4bbe81e72097c" />
   <project name="platform/vendor/qcom/opensource/datarmnet" path="kernel/xiaomi/houji-modules/datarmnet" remote="houji-clo" revision="0f7747af0bd8e8f0603c726ffa0e330f927e1602" />
   <project name="platform/vendor/qcom/opensource/datarmnet-ext" path="kernel/xiaomi/houji-modules/datarmnet-ext" remote="houji-clo" revision="24380abaae2422e1cf0b2b22a85263459f2fedc3" />
+  <project name="la_platform_vendor_opensource_mm-drivers" path="kernel/xiaomi/houji-modules/mm-drivers" remote="houji-clo-mirror" revision="129a3797e8dd1163aa49809b26355c8bb0573584" />
+  <project name="la_platform_vendor_opensource_mmrm-driver" path="kernel/xiaomi/houji-modules/mmrm-driver" remote="houji-clo-mirror" revision="0ecad902add56e93e083c1a4acab37b05b14c508" />
+  <project name="la_platform_vendor_opensource_synx-kernel" path="kernel/xiaomi/houji-modules/synx-kernel" remote="houji-clo-mirror" revision="d5bed2898aa514562a4fb6a5a0ae2732833a54f9" />
 </manifest>

@@ -25,7 +25,7 @@ KERNEL_NO_GCC := true
 TARGET_KERNEL_ADDITIONAL_FLAGS := LLVM=1 LLVM_IAS=1 DTC_FLAGS=-@ \
     KBUILD_EXTRA_SYMBOLS=$(abspath vendor/xiaomi/houji/kernel/OS3.0.305.0.WNCMIXM/Module.symvers)
 TARGET_KERNEL_EXT_MODULE_ROOT := $(DEVICE_PATH)/configs/kernel/modules
-TARGET_KERNEL_EXT_MODULES := stock securemsm wlan-platform rmnet-mem dataipa rmnet-core rmnet-ext wlan
+TARGET_KERNEL_EXT_MODULES := stock securemsm wlan-platform rmnet-mem dataipa rmnet-core rmnet-ext wlan mmrm mm-drivers synx display
 
 # Dtb/o
 TARGET_KERNEL_DTB := dtbs
