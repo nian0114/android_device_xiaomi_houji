@@ -5,7 +5,7 @@ modules currently use unmodified originals from global OS3.0.305.0.WNCMIXM:
 
 | Module | Reason | Original partition |
 | --- | --- | --- |
-| miev.ko | Xiaomi event transport imported by display, GPU and other drivers | vendor_boot ramdisk |
+| miev.ko | Original boot load-list entry and Xiaomi event transport used by stock modules | vendor_boot ramdisk |
 | nxp-nci.ko | Active qcom,sn-nci hardware node | vendor_dlkm |
 
 The blobs, exact ROM archive name, partition provenance and SHA-256 hashes
@@ -38,7 +38,8 @@ module loading, vermagic patch or disabled version/CFI check is used.
 
 ## Static verification and limits
 
-Against 6.1.25-g7cbc6862bbca, both selected modules have all imports available
+In the initial check against 6.1.25-g7cbc6862bbca, both selected modules
+have all imports available
 with identical CRCs, including module_layout. Installing them alongside the
 374 source modules passes depmod -e -F System.map with no unresolved symbols.
 The adapter also rejects the actual stock Synaptics module on unavailable
@@ -55,17 +56,21 @@ hardware state or firmware interaction is compatible. Actual device loading,
 event transport and NFC functionality remain unverified. Preserve enforcement
 and inspect runtime errors during bringup; prefer matching source when available.
 
-## Core haptics consumer
+## Source event consumers
 
-MiCode's event header originally implemented the API as no-ops. Its current
-in-tree consumer is qcom-hv-haptics; the older MiCode display implementation
-does not call that API. The kernel header now keeps the public prototypes
-and imports the actual miev exports instead of silently discarding events.
+The current qcom-hv-haptics source includes xm-haptic.h, but its event API
+calls are guarded by CONFIG_MIEV. That option is not enabled in this source
+configuration, and the installed haptics module does not import cdev_tevent_*
+or depend on miev. The older MiCode display source does not call this API.
 
-Core modpost receives the real saved export table in the vendor baseline via
-TARGET_KERNEL_ADDITIONAL_FLAGS. The adapter regenerates the table from ELF,
-checks the recorded hash and exact contents, and stages the original module.
-This permits core consumers to link before external modules are installed.
-It does not independently prove the public interface ABI: stock miev split
-BTF cannot be resolved with the newer stock boot kernel's base BTF. Preserve
-runtime validation of this interface as a bringup requirement.
+An initial attempt to bridge the core API was withdrawn after checking the
+actual linked module. Core modpost does not receive stock event exports.
+The original MiCode event header is retained; its disabled no-op definitions
+are not evidence of a working source event implementation.
+
+The saved original export table is still verified against the miev ELF by
+the stock adapter and is available for future validated external consumers.
+Before enabling an event consumer, establish a compatible public API and
+CFI/structure behavior. The stock module's split BTF could not be resolved
+with the newer stock boot kernel's base BTF, so static CRC checks alone
+do not establish this interface ABI. Runtime validation is still required.
