@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <remote name="houji-github" fetch="https://github.com/" pushurl="ssh://git@github.com/" />
+  <remote name="houji-clo" fetch="https://git.codelinaro.org/clo/la/" />
   <project name="nian0114/android_device_xiaomi_houji" path="device/xiaomi/houji" remote="houji-github" revision="lineage-23.2" />
   <project name="nian0114/device_xiaomi_sm8650-common" path="device/xiaomi/sm8650-common" remote="houji-github" revision="lineage-23.2" />
   <project name="lolipuru/android_hardware_xiaomi" path="hardware/xiaomi" remote="houji-github" revision="lineage-23.2" />
@@ -12,4 +13,6 @@
   <project name="MiCode/vendor_qcom_opensource_wlan" path="kernel/xiaomi/houji-modules/wlan" remote="houji-github" revision="shennong-u-oss" />
   <project name="nian0114/android_vendor_xiaomi_houji" path="vendor/xiaomi/houji" remote="houji-github" revision="lineage-23.2" />
   <project name="nian0114/android_vendor_xiaomi_sm8650-common" path="vendor/xiaomi/sm8650-common" remote="houji-github" revision="lineage-23.2" />
+  <project name="platform/vendor/qcom/opensource/securemsm-kernel" path="kernel/xiaomi/houji-modules/securemsm-kernel" remote="houji-clo" revision="99e7a9ca5236209af5afadda64be30d472550c68" />
+  <project name="platform/vendor/opensource/dataipa" path="kernel/xiaomi/houji-modules/dataipa" remote="houji-clo" revision="723906905cbf3e7a59ec8924e9d4bbe81e72097c" />
 </manifest>
