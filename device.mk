@@ -32,3 +32,9 @@ PRODUCT_PACKAGES += \
     HoujiEuiccOverlay \
     SettingsOverlayHouji \
     SystemUIResHouji
+
+# Keep stock DLKM paths and dependency metadata for the vendor loading scripts.
+include device/xiaomi/houji/configs/kernel/mode.mk
+ifneq ($(HOUJI_BUILD_KERNEL_FROM_SOURCE),true)
+$(call inherit-product, device/xiaomi/houji/configs/kernel/prebuilt-product.mk)
+endif

@@ -8,9 +8,15 @@
 - 内核源码：MiCode `shennong-u-oss`，当前为 `6.1.25`；原始提交 `317e609aa4fb`。
 - 固件原有内核：`6.1.157-android14-11-g78a0a76cd7b7-ab15497637`。
 
-## 源码内核接入
+## 当前优先级：先构建系统
 
-`BoardConfig.mk` 使用 `kernel/xiaomi/houji`，依次合并 `gki_defconfig`、
+默认已改用同版国际 ROM 的完整原厂内核配套；MiCode 源码移植保留为可选模式。
+模式选择、重提取、模块目录与构建方法见 [原厂内核 bring-up](stock-kernel.md)。
+下文源码内核的编译结果和缺口属于保留的移植路径，不代表默认预编译模式的状态。
+
+## 源码内核接入（可选）
+
+`configs/kernel/source.mk` 使用 `kernel/xiaomi/houji`，依次合并 `gki_defconfig`、
 `vendor/pineapple_GKI.config`、`vendor/houji_GKI.config`，通过 Lineage kernel.mk
 构建 Image、DTB、DTBO，并把源码模块安装至 vendor ramdisk、recovery、vendor_dlkm 与 system_dlkm。
 
@@ -112,7 +118,7 @@ m bacon
 ```
 
 目前产品配置解析、内核配置生成、完整 Image/modules、dtbs 和模块安装均通过。
-Lineage 产品内核打包仍被缺失模块阻塞；完整 ROM 编译和真机启动尚未通过，仍需解决模块与 vendor 接口差异。
+源码模式的 Lineage 产品内核打包仍被缺失模块阻塞；默认原厂模式见 stock-kernel.md。完整 ROM 编译和真机启动尚未通过，仍需解决 vendor 接口差异。
 
 ## WLAN、IPA 与 RMNET 外部模块接入
 
