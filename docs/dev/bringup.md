@@ -73,7 +73,8 @@ WLAN、securemsm、IPA 和 RMNET 已通过 device 内的 wrapper 接入 `TARGET_
 不能仅凭版本号认定 KMI 兼容或不兼容。
 需要完成适当的源码更新/移植、KMI 与符号检查、模块构建及 DT 合并，再进行真机验证。
 原厂模块仅在哈希、架构、vermagic 标志和全部导入符号 CRC 检查通过后安装；
-目前选择 miev、nxp-nci、spcom 与 spss_utils 四项，仍需真机核对实际接口和运行行为。
+目前选择 miev、nxp-nci、spcom、spss_utils、btpower 与 bt_fm_slim 六项，
+仍需真机核对实际接口和运行行为。
 
 ## Vendor 重提取
 
@@ -292,7 +293,7 @@ DT 合并与属性比较：out/houji-camera-dt-validation/report.json。
 更新后配置检查：out/houji-camera-dsp-lunch.log。
 临时脚本和这些验证产物保留在 out，不提交到工程。
 
-### 复用原厂 SPSS 接口模块（2026-11-16，最新结果）
+### 复用原厂 SPSS 接口模块（2026-11-16，历史快照）
 
 当前内核 release 仍为 6.1.25-gafccd6677c77；Image 和既有源码驱动继续源码构建。
 从已经提取的同一份 MIXM vendor_dlkm 中新增选择 spcom.ko 与 spss_utils.ko，
@@ -339,3 +340,62 @@ xiaomi_touch 的显示通知接口，以及 synaptics_tcm2 的多个 Gunyah 接�
 SPSS DT 核对：out/houji-spss-dt-validation.json。
 原厂候选初筛：out/houji-stock-candidates-current.json。
 临时脚本及生成数据保留在 out，不提交到工程。
+
+### 蓝牙模块依赖组与实际 DT 接入（2026-11-16，最新结果）
+
+内核 release 仍为 6.1.25-gafccd6677c77，Image 与既有源码驱动保持源码构建。
+从同一份现有 MIXM vendor_dlkm dump 中选择 btpower.ko 和 bt_fm_slim.ko，
+原始字节、vermagic 和导入 CRC 均未修改。现有四项 bootstrap 组保持在
+源码外置驱动之前；新 stock-extra 组在所有源码 adapter 之后执行，
+使用当前核心、bootstrap 与 securemsm 的真实符号表，不读取旧安装树。
+
+校验器按依赖提供方优先的顺序验证原厂模块：当前项的哈希、标志、
+全部导入 CRC、强导入和导出冲突检查通过后，才把其原始导出加入后续
+项的可用表。btpower 使用源码 securemsm，bt_fm_slim 使用 btpower 和
+原厂 MIEV。缺少 securemsm、consumer-first 顺序、错误哈希和真实
+xiaomi_touch 显示通知接口 CRC 冲突均被拒绝；没有为兼容而伪造符号表。
+
+实际 DT 核对发现源码树缺少 bt_kiwi、GPIO17 sleep pinctrl 和 SLIM BT
+端点，且 SLIM 控制器禁用。因此按同一 ROM 的真实合并树还原这些描述，
+保留实际供电、PDC 电压投票、GPIO16/17/18、mailbox、DMA、IRQ 与
+SLIM 通道，用现有源码 provider label 替代原厂数值 phandle。
+实现位于 kernel/xiaomi/houji-devicetrees/qcom/houji-sm8650-bluetooth.dtsi，
+来源说明见同仓库 docs/dev/houji-bluetooth.md。
+完整 dtbs 编译通过；最终两个产品基础 DTB 均能应用 houji overlay。
+七个相关节点、每树 51 项属性在引用规范化后与四份官方合并 DT 完全一致。
+源码 slimbus 和 slim-qcom-ngd-ctrl 模块均已安装，vendor 加载清单已有
+控制器和端点条目。相机的 47 个活动匹配和 917 项属性对应关系也仍通过。
+
+正式 m -j24 kernel 用时 4 分 15 秒，两个校验组均通过生产验证和安装。
+完整暂存目录有 392 个不同 .ko：386 个源码、6 个原厂文件，无重名文件。
+六个原厂文件安装后哈希全部与原件一致。bt_fm_slim 所需两个 btpower
+接口的 CRC 与实际 provider 一致，完整目录 depmod -e -F System.map
+返回 0 且无输出。MIEV 核心配置仍关闭，源码 haptics 不导入其事件 API。
+
+| 加载清单 | 条目行数 | 去重要求模块数 | 未生成模块数（去重） |
+| --- | ---: | ---: | ---: |
+| boot | 119 | 119 | 13 |
+| recovery | 325 | 324 | 37 |
+| system | 59 | 59 | 0 |
+| vendor | 359 | 297 | 75 |
+
+去重缺口由 90 降到 88，vendor 缺口由 77 降到 75。
+正式产品命令仍因其余保留模块缺失返回 1，未生成产品 dtbo.img；
+分区打包仍有 modules.order / modules.builtin 元数据警告。
+尚无完整 ROM 和真机蓝牙、SLIM 音频、供电/共存、CFI 或 HAL 运行验证。
+
+本轮还确认源 DT 缺少视频、UBWCP 和部分音频节点。后续接入对应模块时，
+必须同时处理实际设备描述与依赖，不能仅凭静态 CRC 通过就宣称功能可用。
+有 CRC 冲突的触控、machine 等原厂模块继续保留为待适配项。
+未修改 Lineage 主树，也未新增单元测试或提交临时验证脚本。
+
+日志：out/houji-kernel-bluetooth-integrated.log。
+当前模块缺口与哈希/依赖：out/houji-kernel-bluetooth-module-gaps.json。
+完整目录依赖输出：out/houji-prebuilt-audit/depmod-bluetooth.log。
+最终 BT DT 核对：out/houji-bluetooth-dt-validation/report.json。
+真实模块校验通过/拒绝记录：out/houji-stock-group-validation/results.json。
+这些验证数据与临时脚本保留在 out，不提交源码。
+
+所有新增修改分别提交到 vendor、device 和 DT 克隆仓库，尚未推送。
+依赖清单指向的公开上游不含本地补丁，需发布至维护的 fork 并更新对应
+revision，才可在新 checkout 中复现新增 DT 和校验流程。

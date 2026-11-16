@@ -111,8 +111,8 @@ conflicts and unavailable Xiaomi touch interfaces. More vendor extraction
 would not fix those interface differences. The temporary current screen is
 out/houji-stock-candidates-current.json.
 
-The stock adapter runs before external source drivers, so each newly selected
-blob must still pass its production inputs at that point in the build. A
+The bootstrap adapter runs before external source drivers, so a newly selected
+bootstrap blob must pass its production inputs at that point in the build. A
 broader screen including later source modules is only a candidate search,
 not a substitute for that check or runtime validation.
 
@@ -139,3 +139,11 @@ Hash, architecture, vermagic, full CRC and strong-import checks stay enabled.
 Bluetooth/SLIM DT descriptions are restored from the same actual MIXM merged
 trees, rather than guessing another phone's supplies or GPIOs. Production
 installation, DT checks and remaining runtime limits are recorded in bringup.md.
+
+The integrated late-group build against 6.1.25-gafccd6677c77 installed both
+Bluetooth originals alongside the four bootstrap blobs and 386 source modules.
+All six installed hashes match the ROM and complete-staging depmod is clean.
+The final DT comparison covers seven Bluetooth/pinctrl/SLIM paths and 51
+properties per tree, matching both source and all four stock variants.
+The product command still fails on the other 88 missing names; device
+Bluetooth and audio operation remain unverified. See bringup.md for evidence.

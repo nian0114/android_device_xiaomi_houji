@@ -138,7 +138,13 @@ wl2866d.ko
 当前 release 的完整暂存目录通过 depmod，无未解析符号。
 
 本表中的 105 项及分类是历史审计快照；当前已补齐相机、cameralog、
-FastRPC、CDSP 等模块；随后又选择原厂 spcom/spss_utils，最新缺口为
-90 个去重名称，见 bringup.md。
+FastRPC、CDSP 等模块；随后又选择原厂 spcom/spss_utils 和蓝牙模块，最新缺口为
+88 个去重名称，见 bringup.md。
 旧 trees.json 中的源码合并树尚无相机节点；新树与检查报告位于
 out/houji-camera-dt-validation，不能用旧源码树代表当前 DT。
+
+蓝牙接入进一步发现旧核心 DT 没有 bt_kiwi 与 SLIM 端点，SLIM 控制器禁用。
+按实际 MIXM 数据补入后，两份最终源码合并树与四份原厂树的七个相关节点、
+51 项属性一致。原审计中的旧源码 trees.json 仍是历史输入；
+新 DT 数据位于 out/houji-bluetooth-dt-validation。视频、UBWCP 和部分
+音频节点也需在后续模块接入时补齐，不能把旧源码树中的无匹配视为无硬件。
