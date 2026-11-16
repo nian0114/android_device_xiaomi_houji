@@ -1,24 +1,24 @@
 ## All proprietary files from this list, unless pinned and noted otherwise,
-## are from Xiaomi 14 (OS3.0.301.0.WNCMIXM). 
+## are from Xiaomi 14 (OS3.0.305.0.WNCMIXM).
 
-abl.img;AB
-aop.img;AB
-aop_config.img;AB
-bluetooth.img;AB
-cpucp.img;AB
-devcfg.img;AB
-dsp.img;AB
-featenabler.img;AB
-hyp.img;AB
-imagefv.img;AB
-keymaster.img;AB
-modem.img;AB
-modemfirmware.img;AB
-qupfw.img;AB
-shrm.img;AB
-tz.img;AB
-uefi.img;AB
-uefisecapp.img;AB
-xbl.img;AB
-xbl_config.img;AB
-xbl_ramdump.img;AB
+abl.elf:abl.img;AB|75d427871980730069fdf43e51639a12382d2a4b
+aop.mbn:aop.img;AB|741a143b8794d44dbf177c0da2358220a10463af
+aop_devcfg.mbn:aop_config.img;AB|f6fd45353f54cab0a49802565d5db0b8d452045a
+BTFM.bin:bluetooth.img;AB|4be82614e0d97f8bdb1be7f3e566cbad403431a1
+cpucp.elf:cpucp.img;AB|56d17a7cf5a3afda78f430791dce1dd278533969
+devcfg.mbn:devcfg.img;AB|c00314f379ec75b0965f1f68424338319487844b
+dspso.bin:dsp.img;AB|078d70e9ee211509100995d4ab8ffbd5821788ff
+featenabler.mbn:featenabler.img;AB|5fb697acc2e3e9f010babf052bdd6c589709c65c
+hypvmperformance.mbn:hyp.img;AB|89b84ee1133ab92ac7e9c706a2eed77f45b03866
+imagefv.elf:imagefv.img;AB|f6b69ccd462d39707c9ff04c700f51a5bab46535
+keymint.mbn:keymaster.img;AB|1a4149813fed48e9fe1dbdd6c18ab11904a8c351
+NON-HLOS.bin:modem.img;AB|e407514069250df67f795faaa8c8d9d5aeb8b5aa
+MODEM-FW.bin:modemfirmware.img;AB|ad11033c95165e61b244aa8c8edb0fdf403ad72f
+qupv3fw.elf:qupfw.img;AB|4cef06eec51e9edee048d7d3b277fcfb4c579af3
+shrm.elf:shrm.img;AB|3eba6d53a793d5a64a6cb41802fca00112a455bb
+tz.mbn:tz.img;AB|ab77d07964f4763464721268a98008a8cd62d7f1
+uefi.elf:uefi.img;AB|b47a5a2c85f6ced0f3010de12258785483e8f8b4
+uefi_sec.mbn:uefisecapp.img;AB|7ead6bf13b6398f1a3dce90d77eb215a825d5c4f
+xbl_s.melf:xbl.img;AB|0a8ec625810195c3b162224e09b1a0bec258d1b9
+xbl_config.elf:xbl_config.img;AB|d915c28c625c60886b1d70db57161f5e47396ef3
+XblRamdump.elf:xbl_ramdump.img;AB|3c3efa60542535c923d4fce82a1a4fd1c3d7c28f
