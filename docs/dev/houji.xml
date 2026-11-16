@@ -21,4 +21,5 @@
   <project name="la_platform_vendor_opensource_mm-drivers" path="kernel/xiaomi/houji-modules/mm-drivers" remote="houji-clo-mirror" revision="129a3797e8dd1163aa49809b26355c8bb0573584" />
   <project name="la_platform_vendor_opensource_mmrm-driver" path="kernel/xiaomi/houji-modules/mmrm-driver" remote="houji-clo-mirror" revision="0ecad902add56e93e083c1a4acab37b05b14c508" />
   <project name="la_platform_vendor_opensource_synx-kernel" path="kernel/xiaomi/houji-modules/synx-kernel" remote="houji-clo-mirror" revision="d5bed2898aa514562a4fb6a5a0ae2732833a54f9" />
+  <project name="la_platform_vendor_qcom_opensource_dsp-kernel" path="kernel/xiaomi/houji-modules/dsp-kernel" remote="houji-clo-mirror" revision="a976ff28ccb56d1b227a857a7cf5f92cd60985f2" />
 </manifest>
