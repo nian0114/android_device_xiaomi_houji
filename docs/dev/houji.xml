@@ -7,6 +7,7 @@
   <project name="nian0114/android_kernel_xiaomi_msm8650" path="kernel/xiaomi/houji" remote="houji-github" revision="shennong-u-oss" />
   <project name="MiCode/kernel_devicetree" path="kernel/xiaomi/houji-devicetrees" remote="houji-github" revision="shennong-u-oss" />
   <project name="MiCode/vendor_qcom_opensource_camera-kernel" path="kernel/xiaomi/houji-modules/camera" remote="houji-github" revision="shennong-u-oss" />
+  <project name="MiCode/vendor_opensource_display-drivers" path="kernel/xiaomi/houji-modules/display" remote="houji-github" revision="shennong-u-oss" />
   <project name="MiCode/vendor_qcom_proprietary_display-devicetree" path="kernel/xiaomi/houji-modules/display-devicetree" remote="houji-github" revision="shennong-u-oss" />
   <project name="MiCode/vendor_qcom_opensource_wlan" path="kernel/xiaomi/houji-modules/wlan" remote="houji-github" revision="shennong-u-oss" />
   <project name="nian0114/android_vendor_xiaomi_houji" path="vendor/xiaomi/houji" remote="houji-github" revision="lineage-23.2" />
