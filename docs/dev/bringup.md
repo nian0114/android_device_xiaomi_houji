@@ -62,11 +62,13 @@ vendor 等后续清单仍需按下文所述补齐外置驱动，不能据此认�
 本地差距清单为 `out/houji-kernel-module-gaps.json`。
 
 `lineage.dependencies` 会下载同分支官方 DTS、相机、WLAN 与显示 DTS，
-其中外置源码目前作为移植输入，尚未接入完整模块和 techpack DTS 合并构建。
+WLAN 公共模块已通过 device 内的 wrapper 接入 `TARGET_KERNEL_EXT_MODULES`；
+其他外置驱动及 techpack DTS 合并仍在移植。
 仍需补全与平台版本匹配的显示、音频、GPU、视频、安全及其他外置模块源码和构建配置。
 新 ROM 的模块清单还包含旧源码未必提供的模块；必须补全实现并核对依赖。
 
-6.1.25 源码与新固件的 6.1.157 模块不能仅凭大版本相同认定兼容。
+当前源码为 6.1.25；新固件 system 模块标记为 6.1.157，抽查 vendor 模块标记为 6.1.68。
+不能仅凭版本号认定 KMI 兼容或不兼容。
 需要完成适当的源码更新/移植、KMI 与符号检查、模块构建及 DT 合并，再进行真机验证。
 当前不复用新固件模块来掩盖上述问题。
 
@@ -107,3 +109,19 @@ m bacon
 
 目前产品配置解析、内核配置生成、完整 Image/modules、dtbs 和模块安装均通过。
 Lineage 产品内核打包、完整 ROM 编译和真机启动尚未验证，仍需解决上述模块与 vendor 接口差异。
+
+## WLAN 外部模块接入
+
+`configs/kernel/modules/wlan-platform/Makefile` 读取 MiCode WLAN 仓库内的
+`pineapple_gki_defconfig`，通过 Lineage 现有外部模块接口执行构建和安装，
+不修改 `vendor/lineage`。目前接入 `cnss_nl`、`cnss_prealloc`、`cnss_utils`、
+`cnss_plat_ipc_qmi_svc`、`wlan_firmware_service`、`icnss2` 六个模块。
+其中 ICNSS2 暂时保留以匹配 stock 加载清单，其运行时适用性仍需 DT/真机核对。
+Pineapple 主 WLAN 驱动 CNSS2 依赖 securemsm/smcinvoke；待补齐该依赖后接入。
+QCACLD 的 `qca_cld3_kiwi_v2` 也尚未接入，因此不能视为 Wi-Fi 已可用。
+
+产品 `m kernel` 已验证上述六个模块通过编译、modpost、BTF 和
+`modules_install`，位于当前 kernel release 的模块暂存目录。
+同时已安装新增的 `crc-itu-t.ko`、`hwmon.ko`，vendor 缺失检查从 143 降至 135，
+未修改加载清单或放宽检查。日志：`out/houji-kernel-wlan-integrated.log`。
+剩余模块仍导致产品内核打包失败，完整 ROM 和真机启动尚未通过。
