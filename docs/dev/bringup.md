@@ -73,7 +73,7 @@ WLAN、securemsm、IPA 和 RMNET 已通过 device 内的 wrapper 接入 `TARGET_
 不能仅凭版本号认定 KMI 兼容或不兼容。
 需要完成适当的源码更新/移植、KMI 与符号检查、模块构建及 DT 合并，再进行真机验证。
 原厂模块仅在哈希、架构、vermagic 标志和全部导入符号 CRC 检查通过后安装；
-目前选择 miev 与 nxp-nci 两项，仍需真机核对实际接口和运行行为。
+目前选择 miev、nxp-nci、spcom 与 spss_utils 四项，仍需真机核对实际接口和运行行为。
 
 ## Vendor 重提取
 
@@ -229,7 +229,7 @@ out/houji-kernel-multimedia-module-gaps.json。
 完整暂存目录 depmod 输出：out/houji-prebuilt-audit/depmod-multimedia.log。
 这些生成物和临时审计脚本保留在 out，不提交到工程。
 
-### 相机、DSP 与相机设备树接入（2026-11-16，最新结果）
+### 相机、DSP 与相机设备树接入（2026-11-16，历史快照）
 
 Image 保持源码编译，当前 release 为 6.1.25-gafccd6677c77。
 本阶段新增四个源码模块：camera.ko、cameralog.ko、frpc-adsprpc.ko 和
@@ -291,3 +291,51 @@ repo manifest 解析及 lunch 均返回 0，无 traceback，也未执行 repo sy
 DT 合并与属性比较：out/houji-camera-dt-validation/report.json。
 更新后配置检查：out/houji-camera-dsp-lunch.log。
 临时脚本和这些验证产物保留在 out，不提交到工程。
+
+### 复用原厂 SPSS 接口模块（2026-11-16，最新结果）
+
+当前内核 release 仍为 6.1.25-gafccd6677c77；Image 和既有源码驱动继续源码构建。
+从已经提取的同一份 MIXM vendor_dlkm 中新增选择 spcom.ko 与 spss_utils.ko，
+保留原始字节和 vermagic。两项均通过现有构建校验器的哈希、AArch64 ELF、
+vermagic 标志、全部导入 CRC（包含 module_layout）、强导入及导出冲突检查。
+它们没有导出新符号，原有 miev 的五个导出 CRC 和保存的符号表不变。
+
+二者对应 qcom,spcom / qcom,spss-utils 活动节点。两份源码和四份原厂合并
+DT 中，每份树的 26 项节点属性在解析 remoteproc/reserved-memory 引用后
+一致，包括寄存器地址、通道名称、熔丝位和固件名称。
+spcom 实际依赖 qcom_ipc_logging，spss_utils 实际依赖 qcom_spss 和
+rproc_qcom_common，均由当前源码提供。原厂模块的选择与边界见
+[预编译模块接入](prebuilt-modules.md)。
+
+本轮正式 m -j24 kernel 用时 4 分 7 秒，四个原厂模块均通过生产校验并安装。
+完整暂存目录共有 390 个不同模块：386 个源码生成、4 个原厂文件，
+没有重名文件，四个文件安装后哈希与 ROM 原件一致。
+完整目录 depmod -e -F System.map 返回 0，输出为空。
+模块加载要求和缺失检查保持启用；没有修改 Lineage 主树或内核源码。
+
+| 加载清单 | 条目行数 | 去重要求模块数 | 未生成模块数（去重） |
+| --- | ---: | ---: | ---: |
+| boot | 119 | 119 | 13 |
+| recovery | 325 | 324 | 37 |
+| system | 59 | 59 | 0 |
+| vendor | 359 | 297 | 77 |
+
+去重缺口由 92 降至 90，vendor 缺口由 79 降至 77。
+产品命令仍因其他保留模块缺失返回 1，未生成产品 dtbo.img；
+分区 depmod 仍有 modules.order / modules.builtin 元数据警告。
+完整 ROM、真机加载、SPSS 固件及用户空间通信仍未验证。
+
+本轮也重新筛查上一阶段缺失的 92 个原厂模块，按当前核心及实际已安装
+模块的导出表检查，40 项通过初步静态链接筛查。这些文件已经包含在现有
+ROM dump 中，尚未接入打包不等于尚未提取。该数字是候选项数，不能直接
+当作可发布数量；当前生产校验器按外部源码驱动安装前的核心导出表验证，
+且静态通过不替代 CFI、hook、UAPI、固件与硬件行为检查。
+xiaomi_touch 的显示通知接口，以及 synaptics_tcm2 的多个 Gunyah 接口
+存在实际 CRC 冲突，继续提取同一 ROM 不会消除这些冲突。
+
+日志：out/houji-kernel-spss-integrated.log。
+当前缺口、原件哈希及依赖：out/houji-kernel-spss-module-gaps.json。
+完整暂存目录依赖检查：out/houji-prebuilt-audit/depmod-spss.log。
+SPSS DT 核对：out/houji-spss-dt-validation.json。
+原厂候选初筛：out/houji-stock-candidates-current.json。
+临时脚本及生成数据保留在 out，不提交到工程。

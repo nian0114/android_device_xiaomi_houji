@@ -138,6 +138,7 @@ wl2866d.ko
 当前 release 的完整暂存目录通过 depmod，无未解析符号。
 
 本表中的 105 项及分类是历史审计快照；当前已补齐相机、cameralog、
-FastRPC、CDSP 等模块，最新缺口为 92 个去重名称，见 bringup.md。
+FastRPC、CDSP 等模块；随后又选择原厂 spcom/spss_utils，最新缺口为
+90 个去重名称，见 bringup.md。
 旧 trees.json 中的源码合并树尚无相机节点；新树与检查报告位于
 out/houji-camera-dt-validation，不能用旧源码树代表当前 DT。

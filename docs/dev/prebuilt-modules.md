@@ -1,18 +1,20 @@
 # Source kernel with selected stock modules
 
-The kernel Image and existing drivers remain source-built. Two necessary
+The kernel Image and existing source drivers remain source-built. Four selected
 modules currently use unmodified originals from global OS3.0.305.0.WNCMIXM:
 
 | Module | Reason | Original partition |
 | --- | --- | --- |
 | miev.ko | Original boot load-list entry and Xiaomi event transport used by stock modules | vendor_boot ramdisk |
 | nxp-nci.ko | Active qcom,sn-nci hardware node | vendor_dlkm |
+| spcom.ko | Active qcom,spcom secure processor communication node | vendor_dlkm |
+| spss_utils.ko | Active qcom,spss-utils firmware/control node | vendor_dlkm |
 
 The blobs, exact ROM archive name, partition provenance and SHA-256 hashes
 are versioned in vendor/xiaomi/houji/kernel/OS3.0.305.0.WNCMIXM/.
 This directory is intentionally separate from generated vendor extraction
 makefiles: the stock external-module adapter owns staging and dependency checks.
-When updating the ROM baseline, re-extract these two files from the recorded
+When updating the ROM baseline, re-extract these selected files from the recorded
 partitions and review/update the manifest and adapter together.
 
 ## Build integration
@@ -80,3 +82,34 @@ Before enabling an event consumer, establish a compatible public API and
 CFI/structure behavior. The stock module's split BTF could not be resolved
 with the newer stock boot kernel's base BTF, so static CRC checks alone
 do not establish this interface ABI. Runtime validation is still required.
+
+## SPSS fallback selection
+
+spcom.ko and spss_utils.ko come from the same existing MIXM vendor_dlkm dump.
+No additional ROM extraction is needed. Both pass the existing production
+verifier against 6.1.25-gafccd6677c77 using the core source Module.symvers:
+original hashes, AArch64 ELF, vermagic flags, all imported CRCs including
+module_layout, strong imports and duplicate-export checks. Neither adds an
+export, so the saved five miev export CRCs remain unchanged.
+
+The actual qcom,spcom and qcom,spss-utils nodes are active in both product DTs
+and all four stock merged DTs. Their 26 properties per tree match after
+normalizing remoteproc/reserved-memory references, including channel names,
+register addresses, fuse bits and firmware names. Their real source providers
+are qcom_ipc_logging, qcom_spss and rproc_qcom_common. Production installation
+and complete-staging depmod are recorded in bringup.md. Device loading, SPSS
+firmware and userspace communication remain unverified.
+
+A new read-only screen against that release examined the previous 92 missing
+original modules, using core plus actually installed module exports. Forty
+passed the preliminary link screen; this does not select all forty for
+shipping. Some other blobs have genuine CRC conflicts: xiaomi_touch's
+panel_event_notifier_register differs, while synaptics_tcm2 has Gunyah CRC
+conflicts and unavailable Xiaomi touch interfaces. More vendor extraction
+would not fix those interface differences. The temporary current screen is
+out/houji-stock-candidates-current.json.
+
+The stock adapter runs before external source drivers, so each newly selected
+blob must still pass its production inputs at that point in the build. A
+broader screen including later source modules is only a candidate search,
+not a substitute for that check or runtime validation.
