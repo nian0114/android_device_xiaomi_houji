@@ -67,6 +67,47 @@ ipclite_test.ko 已在设备的 modules.blocklist 明确屏蔽。
 模块反向依赖。因而不再要求打包它；保留真正的 ipclite.ko，
 它有活动 DT 节点，且 synx-driver 依赖它。
 
+## 剩余 105 项的保留依据
+
+以下按优先顺序分类，名称去重且各行互斥。它们是当前保留依据，
+并不表示每个驱动都已被证实为开机的硬性依赖。
+
+| 依据 | 数量 | 示例 |
+| --- | ---: | --- |
+| OF alias 匹配活动节点 | 26 | camera、msm_drm、msm_kgsl、nxp-nci、synaptics_tcm2 |
+| 无导出 OF alias，但有专用 compatible 字符串匹配活动节点 | 8 | spss_utils、ubwcp、xiaomi_wifi_gpio、wcd939x_slave |
+| 原厂其他模块声明依赖 | 30 | miev、metis、mi_schedule、sync_fence、xiaomi_touch |
+| 仅找到显式用户空间加载引用 | 1 | sla（stock slad.rc） |
+| 上述证据尚不足，继续核查 | 40 | wl2866d、sia91xx_tuning、部分 Xiaomi hook / SoundWire 模块 |
+
+第二组完整名单为 gpu_dump_skip_cdev、lpass_cdc_va_macro_dlkm、
+spss_utils、stub_dlkm、swr_haptics_dlkm、ubwcp、wcd939x_slave_dlkm、
+xiaomi_wifi_gpio。debug_ext 中通用 shared-dma-pool 字符串不构成专用驱动
+匹配证据，因此没有计入该组。
+
+40 个待继续核查的模块如下；“待核查”不能当作“可以删除”：
+
+```text
+binder_prio.ko bootinfo.ko bt_fm_slim.ko
+cameralog.ko cpq.ko debug_ext.ko
+hardwareinfo.ko io_monitor.ko lb.ko
+lpass_cdc_wsa2_macro_dlkm.ko lpass_cdc_wsa_macro_dlkm.ko mi_memory.ko
+mi_mempool.ko mi_thermal_interface.ko mi_wmark.ko
+migt.ko miicmpfilter.ko millet_binder.ko
+millet_hs.ko millet_oem_cgroup.ko millet_sig.ko
+minet.ko miwill.ko mpam_policy.ko
+perf_helper.ko powersave.ko proc_exit.ko
+q6_dlkm.ko rt_mod.ko sia91xx_tuning_dlkm.ko
+speed_touch.ko swinfo.ko swr_dmic_dlkm.ko
+ufs_ffu.ko wcd9378_slave_dlkm.ko wcd937x_slave_dlkm.ko
+wcd938x_dlkm.ko wcd938x_slave_dlkm.ko wl28661d.ko
+wl2866d.ko
+```
+
+部分 WSA macro / SoundWire 节点当前禁用，但这些模块可能参与 machine 驱动的
+动态注册；本轮不据此移除。其余 hook / 字符设备还需追踪源码、导出符号以及
+用户空间二进制和 sysfs 使用，再决定保留、适配或随使用方一起移除。
+
 ## 暂时保留与验证边界
 
 - synaptics_tcm2 有活动触控节点，且依赖 xiaomi_touch。

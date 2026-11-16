@@ -141,29 +141,43 @@ datarmnet 和 datarmnet-ext。manifest 仍固定公开上游输入；本地 port
 完整产品依赖验证；正式产品构建和模块打包结果单独记录在下文。
 本轮不增加单元测试，验证使用真实编译、链接和模块安装。
 
-### 产品构建结果（2026-11-16）
+### 产品构建结果（2026-11-16，适用性核对后）
 
 `m -j24 kernel` 已通过 Soong、Kati，完成 Image、DTB、内核模块及上述
-全部外置模块的编译和安装；产品 kernel release 为 `6.1.25-g6f40e13d84ee`。
-该 release 的模块暂存目录共 374 个源码 `.ko`，新增 Wi-Fi、IPA、RMNET、
-securemsm 和 CNSS2 均已安装，日志中没有编译错误或 depmod 未解析符号警告。
-对该完整暂存目录执行 `depmod -e -F System.map` 也已通过，未输出未解析符号；
-结果保存在 `out/houji-kernel-network-depmod.log`。
+全部外置模块的编译和安装；本轮 kernel release 为 `6.1.25-g7cbc6862bbca`。
+该 release 的模块暂存目录共 374 个源码 .ko，Wi-Fi、IPA、RMNET、
+securemsm 和 CNSS2 均已安装，未出现编译错误。
+对完整暂存目录执行 depmod -e -F System.map 通过，退出 0 且无未解析符号输出；
+结果保存在 out/houji-module-audit/depmod-after-pruning.log。
 
-产品命令最终仍因缺失清单项退出 1，尚未生成本轮产品 `dtbo.img`，不能作为可刷机版本。
+本轮在原厂 4 份和源码 2 份 houji 合并 DT、原厂 495 个模块的绑定与依赖元数据、
+加载脚本基础上，移除了 21 个不适用的缺失名称：10 个其他高通平台驱动、
+10 个替代外设驱动和 1 个明确 blocklist 的测试模块。
+不存在保留原厂模块声明依赖这 21 项的情况，调整没有关闭模块缺失检查。
+详细名称、证据和保留边界见 [模块适用性审计](module-audit.md)。
+
+产品命令用时 6 分 31 秒，最终仍因保留清单项缺失退出 1。
+本轮未生成产品 dtbo.img，不能作为可刷机版本。
 仅对当前 release 的暂存目录比较，结果如下；各清单缺失项存在重叠：
 
-| 加载清单 | 要求模块数 | 未生成模块数 |
-| --- | ---: | ---: |
-| boot | 124 | 19 |
-| recovery | 335 | 53 |
-| system | 59 | 0 |
-| vendor | 384 | 107 |
+| 加载清单 | 条目行数 | 去重要求模块数 | 未生成模块数（去重） |
+| --- | ---: | ---: | ---: |
+| boot | 119 | 119 | 14 |
+| recovery | 325 | 324 | 43 |
+| system | 59 | 59 | 0 |
+| vendor | 359 | 297 | 91 |
 
-全部清单共有 126 个不同的缺失模块名。vendor 的缺口由最初 143 项降为 107 项，
-加载清单和缺失检查保持启用。剩余项包括显示、相机、音频、GPU、视频、触摸、
-NFC 和 Xiaomi 扩展；其中还含其他平台的 stock 条目，需要结合 DT 和硬件逐项核对。
+全部清单共有 105 个不同的缺失模块名，由核对前的 126 项减少 21 项。
+vendor 缺口由最初 143 项、网络驱动接入后的 107 项降至 91 项。
+这里没有批量调整与本轮删除无关的重复行，因此要求模块数需区别行数与去重数。
 
-完整构建日志：`out/houji-kernel-network-integrated.log`。
-当前 release 的缺口明细：`out/houji-kernel-network-module-gaps.json`。
+剩余项按保留依据分为：26 项有 OF alias 活动节点匹配，8 项有专用 compatible
+字符串活动节点匹配，30 项有原厂模块反向依赖，1 项仅找到显式用户空间加载，
+另外 40 项继续核查。以上分类互斥，不代表这 105 项都已证明必须保留。
+显示、相机、音频、GPU、视频、触摸、NFC 等实际驱动仍需继续接入；
+不明确的 Xiaomi hook / 调试和自定义总线模块没有仅凭名称删除。
+
+完整构建日志：out/houji-kernel-network-integrated.log。
+当前 release 的缺口明细：out/houji-kernel-network-module-gaps.json。
+本轮前后对比与临时分析：out/houji-module-audit/。
 这些验证产物及临时脚本保留在 out，不提交进源码。
