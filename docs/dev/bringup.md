@@ -14,6 +14,11 @@
 `vendor/pineapple_GKI.config`、`vendor/houji_GKI.config`，通过 Lineage kernel.mk
 构建 Image、DTB、DTBO，并把源码模块安装至 vendor ramdisk、recovery、vendor_dlkm 与 system_dlkm。
 
+DTBO 使用 Lineage 默认的 `obj/DTBO_OBJ/arch/arm64/boot/dtbo.img` 中间路径，
+再由 Android 镜像规则复制并添加 AVB footer，生成最终的 `$(PRODUCT_OUT)/dtbo.img`。
+`BOARD_PREBUILT_DTBOIMAGE` 不能指向最终输出，否则会形成 Ninja 自依赖，
+且内核生成规则会覆盖镜像复制和 AVB 签名规则。
+
 模块加载顺序和 blocklist 来自新 ROM，保存在 `configs/kernel/`；system_dlkm 的
 原始模块路径已规范化为文件名，以符合 Lineage 模块安装器的匹配方式。
 配置不复制旧预编译 Image 或 stock `.ko`，不跳过缺失模块。

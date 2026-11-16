@@ -28,7 +28,6 @@ TARGET_KERNEL_ADDITIONAL_FLAGS := LLVM=1 LLVM_IAS=1 DTC_FLAGS=-@
 TARGET_KERNEL_DTB := dtbs
 TARGET_DTB_LIST_WILDCARD := vendor/qcom/pineapple vendor/qcom/pineapple-v2
 BOARD_KERNEL_SEPARATED_DTBO := true
-BOARD_PREBUILT_DTBOIMAGE := $(PRODUCT_OUT)/dtbo.img
 BOARD_DTBO_CFG := $(DEVICE_PATH)/configs/kernel/dtbo.cfg
 
 # Let the kernel build install source-built modules into the DLKM partitions.
