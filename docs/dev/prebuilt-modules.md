@@ -54,3 +54,18 @@ CRC checks do not prove that every structure layout, behavior, CFI callback,
 hardware state or firmware interaction is compatible. Actual device loading,
 event transport and NFC functionality remain unverified. Preserve enforcement
 and inspect runtime errors during bringup; prefer matching source when available.
+
+## Core haptics consumer
+
+MiCode's event header originally implemented the API as no-ops. Its current
+in-tree consumer is qcom-hv-haptics; the older MiCode display implementation
+does not call that API. The kernel header now keeps the public prototypes
+and imports the actual miev exports instead of silently discarding events.
+
+Core modpost receives the real saved export table in the vendor baseline via
+TARGET_KERNEL_ADDITIONAL_FLAGS. The adapter regenerates the table from ELF,
+checks the recorded hash and exact contents, and stages the original module.
+This permits core consumers to link before external modules are installed.
+It does not independently prove the public interface ABI: stock miev split
+BTF cannot be resolved with the newer stock boot kernel's base BTF. Preserve
+runtime validation of this interface as a bringup requirement.

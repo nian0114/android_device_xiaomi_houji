@@ -143,10 +143,15 @@ def main():
 
     generated = kernel / "houji-stock"
     generated.mkdir(exist_ok=True)
-    (generated / "Module.symvers").write_text("".join(
+    symvers = "".join(
         f"{crc:#010x}\t{name}\t{provider}\t{kind}\t{namespace}\n"
         for crc, name, provider, kind, namespace in exported
-    ))
+    )
+    saved = (args.manifest.parent / "Module.symvers").read_bytes()
+    if (hashlib.sha256(saved).hexdigest() != manifest["export_symvers_sha256"]
+            or saved != symvers.encode()):
+        raise ValueError("saved export CRCs differ from original ELF tables")
+    (generated / "Module.symvers").write_text(symvers)
     release = (kernel / "include/config/kernel.release").read_text().strip()
     if args.install_root:
         destination = args.install_root / "lib/modules" / release / "extra/houji-stock"
