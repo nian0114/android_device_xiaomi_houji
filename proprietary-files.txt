@@ -1096,6 +1096,12 @@ odm/lib64/camera/fdconfigvideolite.bin|91ae8cbb17c504913647bd24cc5d4a0685d384a8
 odm/lib64/camera/libchxlogicalcameratable.so|f834bb75600e9f014c9ace7180fc5bad1f44a3fd|1f0f4c4b44c76cc68054e8b760a9fbe62db64dff
 
 
+# Camera CN main sensor variant
+# From houji OS3.0.307.0.WNCCNXM; Global lacks these B6 module profiles.
+odm/lib64/camera/com.qti.sensormodule.houji_sunny_ovx9000_wide_ii.bin|3d51fcb218b940af98b9d38bdce6f60d60e88ab3
+odm/lib64/camera/com.qti.tuned.houji_sunny_ovx9000_wide_ii.bin|7c8c358a334054cd2d7826ac9c5facc1a114217a
+
+
 # Camera Plugins
 odm/lib64/camera/plugins/com.xiaomi.plugin.anchor.so|add0e8b68f3d75cec83f63b61952e6299a60da56|dd83931a2604659c349360c14a4e48908843cdb1
 odm/lib64/camera/plugins/com.xiaomi.plugin.arcsoftportraitsll.so|c1db11bc0440ed106b4c122eb7562ac1a9ce301e

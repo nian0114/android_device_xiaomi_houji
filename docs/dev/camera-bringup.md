@@ -196,3 +196,60 @@ maps 和私有校准目录，未绕过这些限制；未修改属性、库、EEP
 
 原厂限制 ADB input 注入，首次点击请求被拒绝，未成功切换档位；
 3.2×由操作者手动选择。没有修改开发者安全设置来绕过该限制。
+
+
+## 国行原厂恢复主摄与 wide_ii 配置补齐（2026-11-17）
+
+随后刷回国行 OS3.0.307.0.WNCCNXM 完整固件，bootimage、vendor、odm
+版本属性均指向该版本。普通 ADB shell、SELinux Enforcing 下观察到：
+
+```text
+persist.vendor.camera.mi.module.info=back_main=0x74;back_tele=0x62;
+persist.vendor.camera.sensor.probe=<front:----S><tele:----S><ultra:----S><wide:----S>
+```
+
+当前 HAL 注册 11 个设备，物理 ID 2 为焦距 6.55 mm、活动阵列
+4096×3072 的主摄；ID 3 为 2.16 mm 超广角，ID 4 为 9 mm 长焦。
+原厂应用连接逻辑 ID 5。操作者切到拍照 1× 后，当前会话元数据
+`android.lens.focalLength=6.55000019`、`android.control.zoomRatio=1.0`。
+相比 Global 的 1× 超广角数字变焦，本次主摄注册及预览已恢复。
+采集时 crash buffer 为空；未验证拍照成片、录像或全部倍率。
+
+### 缺失文件与官方来源
+
+国行 ODM 相比 Global 额外包含两份主摄变体文件，当前工程也缺少它们：
+
+| 文件（位于 odm/lib64/camera） | 国行原件 SHA-1 |
+| --- | --- |
+| com.qti.sensormodule.houji_sunny_ovx9000_wide_ii.bin | 3d51fcb218b940af98b9d38bdce6f60d60e88ab3 |
+| com.qti.tuned.houji_sunny_ovx9000_wide_ii.bin | 7c8c358a334054cd2d7826ac9c5facc1a114217a |
+
+从操作者提供的国行 3.0.307 完整包中提取上述原件。wide_ii 模组包含
+`0xB6` 探测条件，并引用对应的 wide_ii sensor、EEPROM、actuator 名称。
+这些配套 `.so` 的国行原始 SHA-1 与工程已记录的 Global 原始 hash
+逐一相同，现有 allocator fixup 继续适用。原 wide 配置的 B5 条件保持
+不变；补入官方变体，不改探测逻辑、不修改 EEPROM/persist 或校准数据。
+
+这解释了为什么原有 wide 探测读到 B6 后失败，以及仅有 wide_ii 驱动库
+仍不足以支持该模组。国行原厂对照支持模组配置缺失这一修复方向，
+不能再将此次主摄缺失作为硬件故障的证据。原厂没有开放初始化详细
+probe 日志及 maps 读取，因此本次未取得其具体库加载轨迹。
+
+### 重复提取与后续验证
+
+在 proprietary-files.txt 的 `Camera CN main sensor variant` 独立 section
+中固定两份国行原件 hash，并通过生成的 vendor makefile 安装到 ODM。
+默认非 kang 提取会优先保留 vendor 仓库中 hash 匹配的 pinned 文件，
+所以从 Global 基线重新提取时可保留这两份补充配置。
+
+若从空 vendor 目录恢复，应先将两份国行原件补入完整 Global 解包目录的
+`odm/lib64/camera/`，再运行一次常规提取；仅凭 Global 包无法生成它们。
+若 vendor 已有其余文件，只需单独提取国行本节（从 device 目录执行）：
+
+```sh
+./extract-files.py --only-target --section 'Camera CN main sensor variant' /path/to/cn307-dump
+```
+
+本次只执行文件提取、makefile 生成和静态核对，没有构建 ROM。安装新
+Lineage 构建后，仍需验证 wide 探测、主摄物理元数据、1×预览、拍照、
+录像及倍率切换；不能把国行原厂的成功直接计作 Lineage 修复已通过。
