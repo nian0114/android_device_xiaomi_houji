@@ -106,3 +106,26 @@ Android 构建或添加单元测试。当前手机的 Aperture 已关闭 Ultra H
 
 本项验证只覆盖默认后摄 VIDEO/PHOTO 预览切换，不代表已经验证拍照
 成片、实际录像、全部倍率、前后摄切换或主摄 EEPROM 探测问题。
+
+## 主摄 EEPROM 探测条件（2026-11-17）
+
+进一步只打开 SENSOR 组的 info/verbose 日志，重启 provider 后捕获到：
+
+```text
+camxeepromdata.cpp:5240 Compare() 182 eq 181 => false
+camxeepromdata.cpp:5349 Probe() Probe item failed
+camxeepromdata.cpp:5404 Probe() Probe EEPROM houji_sunny_ovx9000_p24c128e_wide_eeprom failed.
+```
+
+这次探测实际读到 `0xB6`，当前 wide 配置要求 `0xB5`，因此主摄被拒绝。
+当前属性仍为 `back_main=none`；前摄、超广角、长焦的存在不能算主摄恢复。
+当前模组二进制确实包含 `0xB5` 条件。Global 3.0.305 官方目录有 wide 和
+wide_ii 的 sensor/EEPROM/actuator 库，但只找到一份 wide sensormodule bin；
+CN 3.0.307 已核对的同名 bin 与 Global 相同。这些事实还不能证明 wide_ii
+就是该手机应该选择的变体，也不能证明改成接受 B6 就能安全使用相同校准。
+
+下一步需要从这台手机运行原厂系统时，核对实际加载的 sensormodule、
+sensor、EEPROM 库、探测日志及运行时补充配置，确定正确的模组匹配路径。
+不要通过跳过 probe、把 B5 直接改成 B6、复制 golden 数据或写 EEPROM/persist
+校准来伪造探测成功。本次只采集初始化日志，临时日志属性已恢复；未修改
+EEPROM/persist 校准、厂商库指令或主摄配置。主摄问题仍未修复。
