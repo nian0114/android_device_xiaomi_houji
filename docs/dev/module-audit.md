@@ -7,7 +7,8 @@
 
 ## 范围与方法
 
-基线为国际版 Fastboot 包 OS3.0.305.0.WNCMIXM，与当前 vendor 提取基线一致。
+本次历史审计基线为国际版 Fastboot 包 OS3.0.305.0.WNCMIXM；当前默认
+vendor/原厂内核已迁移为国行 3.0.307，见 [国行基线](vendor-baseline.md)。
 使用该包 vendor_boot 中全部 4 个基础 DTB，分别应用该包 dtbo.img 中的 houji
 overlay；另核对源码构建的 Pineapple / Pineapple-v2 两个 houji 合并 DTB。
 检查节点状态时包含全部祖先节点，不能把禁用总线下的节点当成活动硬件。

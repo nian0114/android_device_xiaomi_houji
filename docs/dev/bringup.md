@@ -3,15 +3,15 @@
 ## 当前基线
 
 - Android 主树、houji、sm8650-common：`lineage-23.2`。
-- Vendor：用户提供的国际版 `OS3.0.305.0.WNCMIXM` 完整 Fastboot 包；设备与 common 从同一个 dump 提取，IMS 不再使用旧国行版。
-- 国行测试机基带例外：`modem` 与 `modemfirmware` 固定为原机国行 `OS3.0.307.0.WNCCNXM` 配对，原因与验证方法见 [基带说明](radio-firmware.md)。
-- Vendor 安全补丁：`2026-10-01`。内核安全补丁不据此升级，仍需核查实际源码补丁。
+- Vendor：用户提供的国行 `OS3.0.307.0.WNCCNXM` 完整 Fastboot 包；设备、common、固件及默认原厂内核统一提取，见 [国行基线](vendor-baseline.md)。
+- 基带：`modem` 与 `modemfirmware` 来自同版国行包，原因与验证方法见 [基带说明](radio-firmware.md)。
+- Vendor 安全补丁：`2026-08-01`，使用国行原厂声明。内核安全补丁不据此升级，仍需核查实际源码补丁。
 - 内核源码：MiCode `shennong-u-oss`，当前为 `6.1.25`；原始提交 `317e609aa4fb`。
-- 固件原有内核：`6.1.157-android14-11-g78a0a76cd7b7-ab15497637`。
+- 默认原厂内核：`6.1.138-android14-11-g0c3d559bcd85-ab14529422`。
 
 ## 当前优先级：先构建系统
 
-默认已改用同版国际 ROM 的完整原厂内核配套；MiCode 源码移植保留为可选模式。
+默认使用同版国行 ROM 的完整原厂内核配套；MiCode 源码移植保留为可选模式。
 模式选择、重提取、模块目录与构建方法见 [原厂内核 bring-up](stock-kernel.md)。
 下文源码内核的编译结果和缺口属于保留的移植路径，不代表默认预编译模式的状态。
 
@@ -76,7 +76,7 @@ WLAN、securemsm、IPA 和 RMNET 已通过 device 内的 wrapper 接入 `TARGET_
 音频、GPU、视频、触控、SPSS 等外置模块源码和构建配置。
 新 ROM 的模块清单还包含旧源码未必提供的模块；必须补全实现并核对依赖。
 
-当前源码为 6.1.25；新固件 system 模块标记为 6.1.157，抽查 vendor 模块标记为 6.1.68。
+当前源码为 6.1.25；早期 Global 审计的 system 模块标记为 6.1.157，抽查 vendor 模块标记为 6.1.68。
 不能仅凭版本号认定 KMI 兼容或不兼容。
 需要完成适当的源码更新/移植、KMI 与符号检查、模块构建及 DT 合并，再进行真机验证。
 原厂模块仅在哈希、架构、vermagic 标志和全部导入符号 CRC 检查通过后安装；
@@ -99,8 +99,9 @@ python3 device/xiaomi/houji/extract-files.py --kang /path/to/rom/images
 除退出码外，应检查提取日志没有 `file not found`、`Some files failed` 或 traceback，
 并确认生成两个 vendor makefile。更新时同步提取 vendor_boot 的模块加载元数据。
 
-本基线移除了 ROM 不提供的旧国行相机文件及 Pixel EuiccGoogle APK，
-改用本 ROM 的 `xiaomi-modem-common.jar` 支持 XiaomiEsimSwitcher。
+当前基线补齐国行相机 wide_ii/tele_ii 配置；按产品要求移除 Google Hotword
+enrollment 和 SoterService 应用及专用 enrollment 文件。使用同版
+`xiaomi-modem-common.jar` 支持 XiaomiEsimSwitcher，Pixel EuiccGoogle APK 不随包提供。
 保留 Xiaomi eSIM policy/switcher；Google LPA 不再随包提供，eSIM 完整功能需选定兼容 LPA 后验证。
 
 `vendor/xiaomi/houji/radio/*.img` 使用 Git LFS，其他 vendor 文件正常提交。

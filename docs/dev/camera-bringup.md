@@ -1,5 +1,9 @@
 # 相机 bring-up：ABI 与 Ultra HDR
 
+当前默认已统一为国行 3.0.307，wide_ii/tele_ii 模组与调校配置完整提取，
+见 [国行基线](vendor-baseline.md)。以下 Global 对照和补充提取流程为问题
+定位过程记录；常规重提取使用完整国行来源。
+
 真机初次检查中，Aperture 切换倍率时相机 provider 曾因 Scudo
 `invalid chunk state when deallocating` 中止，栈位于
 `ChiContext::DestroyPipelineDescriptor` 的输出流包装对象释放路径。

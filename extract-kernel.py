@@ -20,7 +20,7 @@ os.environ["PATH"] = str(TOP / "prebuilts/kernel-build-tools/linux-x86/bin") + o
 sys.path.insert(0, str(TOP / "tools/extract-utils"))
 from extract_utils.extract_recovery import extract_ramdisk, unpack_bootimg
 
-ROM_VERSION = "OS3.0.305.0.WNCMIXM"
+ROM_VERSION = "OS3.0.307.0.WNCCNXM"
 
 
 def sha256(path):

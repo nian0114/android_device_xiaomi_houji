@@ -2,7 +2,7 @@
 
 ## 默认方案
 
-先用国际版 `OS3.0.305.0.WNCMIXM` 的同套内核、DTB、DTBO 和模块构建
+使用国行 `OS3.0.307.0.WNCCNXM` 的同套内核、DTB、DTBO 和模块构建
 LineageOS；MiCode 6.1.25 源码及外置驱动移植保留为可选开发路径。
 默认选择在 `configs/kernel/mode.mk`：
 `HOUJI_BUILD_KERNEL_FROM_SOURCE ?= false`。要继续源码移植时将该默认值改为
@@ -10,11 +10,11 @@ LineageOS；MiCode 6.1.25 源码及外置驱动移植保留为可选开发路径
 
 原厂材料位于 `vendor/xiaomi/houji/kernel/stock/`：
 
-- boot 中的 Image：`6.1.157-android14-11-g78a0a76cd7b7-ab15497637`。
+- boot 中的 Image：`6.1.138-android14-11-g0c3d559bcd85-ab14529422`。
 - vendor_boot 中连续排列的 4 份 DTB，字节和顺序保持原样。
 - dtbo 中完整 DTBO 表和 entries，移除原厂填充与 AVB footer，由 Lineage 重新签名。
 - vendor ramdisk 的 340 个模块，保留 boot/recovery 加载清单与 blocklist。
-- vendor_dlkm 的 313 个模块、system_dlkm 的 60 个模块及原始依赖元数据。
+- vendor_dlkm 的 314 个模块、system_dlkm 的 60 个模块及原始依赖元数据。
 
 用户空间编译需要的 UAPI 头文件仍从 MiCode 源码执行 headers_install 导出；
 通过 TARGET_FORCE_PREBUILT_KERNEL 保证 Image 使用原厂文件，不编译源码内核

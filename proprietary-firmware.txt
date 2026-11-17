@@ -1,28 +1,28 @@
 ## All proprietary files from this list, unless pinned and noted otherwise,
-## are from Xiaomi 14 (OS3.0.305.0.WNCMIXM).
+## are from Xiaomi 14 (OS3.0.307.0.WNCCNXM).
 
-abl.elf:abl.img;AB|75d427871980730069fdf43e51639a12382d2a4b
-aop.mbn:aop.img;AB|741a143b8794d44dbf177c0da2358220a10463af
-aop_devcfg.mbn:aop_config.img;AB|f6fd45353f54cab0a49802565d5db0b8d452045a
-BTFM.bin:bluetooth.img;AB|4be82614e0d97f8bdb1be7f3e566cbad403431a1
-cpucp.elf:cpucp.img;AB|56d17a7cf5a3afda78f430791dce1dd278533969
-devcfg.mbn:devcfg.img;AB|c00314f379ec75b0965f1f68424338319487844b
-dspso.bin:dsp.img;AB|078d70e9ee211509100995d4ab8ffbd5821788ff
-featenabler.mbn:featenabler.img;AB|5fb697acc2e3e9f010babf052bdd6c589709c65c
-hypvmperformance.mbn:hyp.img;AB|89b84ee1133ab92ac7e9c706a2eed77f45b03866
-imagefv.elf:imagefv.img;AB|f6b69ccd462d39707c9ff04c700f51a5bab46535
-keymint.mbn:keymaster.img;AB|1a4149813fed48e9fe1dbdd6c18ab11904a8c351
+abl.elf:abl.img;AB|f3427a24639813c1979529d35638f1d46121f49e
+aop.mbn:aop.img;AB|6794a6c21a98dc41539e2ff38852419842eadb58
+aop_devcfg.mbn:aop_config.img;AB|8f1e7dd468b0b98ff5e12d85c70a2cd42f0862bb
+BTFM.bin:bluetooth.img;AB|7033266b77d359e680a0fc92ee18baf33f68d628
+cpucp.elf:cpucp.img;AB|35579404188c63bbec9d6802aec9ddbd97611852
+devcfg.mbn:devcfg.img;AB|716ad4b95b5faed3843aca941427341f483926a7
+dspso.bin:dsp.img;AB|5327bd483d5b150106dc85b9334ec67936f19699
+featenabler.mbn:featenabler.img;AB|abe4108fffa2c81dea0ad11237fbca426358db14
+hypvmperformance.mbn:hyp.img;AB|5a70621c46cf2cb80574857640dae1d0d29cb8e3
+imagefv.elf:imagefv.img;AB|2da73cbe12bd5fce419e6423c5587c993cba0775
+keymint.mbn:keymaster.img;AB|aa4ac739b9335ff638932697ec15f6c0a9304f14
 # China OS3.0.307.0.WNCCNXM radio pair for the CN bring-up device.
-# Keep both hashes pinned when extracting userspace blobs from Global ROMs.
+# Keep this radio pair from the same CN Fastboot baseline.
 NON-HLOS.bin:modem.img;AB|1452d0e8504fb45aa1426abb9eb10074f2d8794b
 MODEM-FW.bin:modemfirmware.img;AB|429cbcf52b85e279b4e4e9b93288e53e518dc943
 
-# Remaining firmware: Global OS3.0.305.0.WNCMIXM.
-qupv3fw.elf:qupfw.img;AB|4cef06eec51e9edee048d7d3b277fcfb4c579af3
-shrm.elf:shrm.img;AB|3eba6d53a793d5a64a6cb41802fca00112a455bb
-tz.mbn:tz.img;AB|ab77d07964f4763464721268a98008a8cd62d7f1
-uefi.elf:uefi.img;AB|b47a5a2c85f6ced0f3010de12258785483e8f8b4
-uefi_sec.mbn:uefisecapp.img;AB|7ead6bf13b6398f1a3dce90d77eb215a825d5c4f
-xbl_s.melf:xbl.img;AB|0a8ec625810195c3b162224e09b1a0bec258d1b9
-xbl_config.elf:xbl_config.img;AB|d915c28c625c60886b1d70db57161f5e47396ef3
-XblRamdump.elf:xbl_ramdump.img;AB|3c3efa60542535c923d4fce82a1a4fd1c3d7c28f
+# Remaining firmware: CN OS3.0.307.0.WNCCNXM.
+qupv3fw.elf:qupfw.img;AB|2461787d8f35d9275f349c3de2787ecd6dd88a96
+shrm.elf:shrm.img;AB|8f3c62a5f41ed5122881ab7e3ae3d29a6fb8223e
+tz.mbn:tz.img;AB|9f81da267aa4662333ebeda066c7d815005b520a
+uefi.elf:uefi.img;AB|46ca73d14cfad9d2af317457030dba323e809925
+uefi_sec.mbn:uefisecapp.img;AB|636a49e66a6d173325daabdd5326115c53de4194
+xbl_s.melf:xbl.img;AB|b7e63d20de724197bd84fccc49a6331401288dc4
+xbl_config.elf:xbl_config.img;AB|7112291417e18426172e77911cff0b2b068f7766
+XblRamdump.elf:xbl_ramdump.img;AB|431ad7aa2e2cd6c2d9e4dcd3ee8914a2b9bd37a0

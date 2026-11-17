@@ -1,10 +1,13 @@
 # Kernel packaging metadata
 
-Module load order and blocklist are extracted from Xiaomi 14 Global
-`OS3.0.305.0.WNCMIXM` vendor_boot, vendor_dlkm, and system_dlkm.
-The stock kernel is `6.1.157-android14-11-g78a0a76cd7b7-ab15497637`.
+The default stock bundle uses CN `OS3.0.307.0.WNCCNXM`: kernel
+`6.1.138-android14-11-g0c3d559bcd85-ab14529422`, matched DTB/DTBO,
+340 ramdisk, 314 vendor_dlkm and 60 system_dlkm modules. Its original
+load metadata is preserved inside `vendor/xiaomi/houji/kernel/stock/`.
+See `docs/dev/stock-kernel.md` and `docs/dev/vendor-baseline.md`.
 
-These lists specify required modules, not permission to reuse stock binaries.
-All modules are installed by Lineage source kernel rules; missing modules must fail the build.
-The old 6.1.25 source release still needs missing Xiaomi and external drivers.
-See `docs/dev/bringup.md` for current source build blockers.
+The standalone lists in this directory and controlled prebuilt fallback
+wrappers belong to the optional MiCode source development path. They were
+audited against Global `OS3.0.305.0.WNCMIXM` and are not used by the default
+stock mode. The 6.1.25 source release still needs external driver and KMI
+work; missing module checks remain enabled. See `docs/dev/bringup.md`.
