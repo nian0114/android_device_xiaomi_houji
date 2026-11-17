@@ -1,0 +1,4 @@
+# Camera
+# The stock HAL double-frees an MFSR output wrapper with framework-composite JPEG/R.
+# Expose ordinary JPEG until the P010/HLG snapshot path is compatible.
+ro.camera.disableJpegR=true

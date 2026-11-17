@@ -1,4 +1,4 @@
-# 相机 bring-up：TinyXML2 对象布局
+# 相机 bring-up：ABI 与 Ultra HDR
 
 真机初次检查中，Aperture 切换倍率时相机 provider 曾因 Scudo
 `invalid chunk state when deallocating` 中止，栈位于
@@ -31,3 +31,46 @@ v34 库中可用，相关 Soong 模块依赖指向 v34。
 需要操作者重新构建安装后，反复切换超广角/主摄/长焦、前后摄并检查
 crash buffer 与 provider PID，再验证拍照和录像。若仍在管线销毁时
 崩溃，须继续追踪流对象所有权，不能通过屏蔽内存释放规避。
+
+## VIDEO → PHOTO → VIDEO：派生 Ultra HDR 能力
+
+2026-11-17 真机对照确认，Aperture 默认启用 JPEG Ultra HDR。框架为
+该 HAL 派生 JPEG/R 能力后，PHOTO 配置的是 `Camera3-P010CompositeStream`：
+4080×3072 P010、HLG10，而非普通 JPEG 输出。
+
+此配置下，`MfsrPostFilter_IPE5` 与 `MfsrPostFilter_IPE66` 的输出端口 9
+引用同一个 `ChiStreamWrapper` 和 `ChiStream`。退出拍照模式时，
+`camera.qcom.so` 的 `ChiContext::DestroyPipelineDescriptor` 遍历输出槽位，
+对重复的 wrapper 执行两次 `operator delete`。malloc_debug 的隔离队列
+记录到了同一地址的首次释放栈和再次释放栈；普通 allocator 下则由
+Scudo 中止 provider。失败地址位于 `camera.qcom.so + 0x2f8bd0`。
+
+将 Aperture 的 Ultra HDR 偏好临时关闭后，同一路径使用普通 JPEG
+（BLOB、STANDARD 动态范围）。MFSR 仍会创建，但不再出现上述 IPE66
+重复输出。恢复 Ultra HDR 又能复现相同的释放错误。
+
+### 设备配置
+
+在 houji 自己的 system 属性文件中设置 `ro.camera.disableJpegR=true`。
+平台已有的 `CameraProviderManager::DeviceInfo3::deriveJpegRTags()` 会读取
+该属性并跳过 JPEG/R 能力派生，使相机应用回退到 HAL 可正常处理的
+普通 JPEG。该属性是现有的 `camera_config_prop` 布尔属性。
+
+这是针对不兼容流配置的能力限制，不是对闭源 HAL 内部所有权逻辑的
+修复。代价是关闭框架派生的 Ultra HDR 照片支持。它不修改 HAL 指令、
+内存分配器、Aperture 或平台源码。重新开启该能力前，必须先修正并
+验证厂商 P010/HLG 拍照路径的输出所有权。
+
+### 验证范围
+
+真机对照通过 Aperture 的 Ultra HDR 开关选择对应流配置，并检查
+每个模式的预览时间戳、provider PID 和 native 崩溃日志。普通 JPEG
+先连续通过 3 轮；重新开启 Ultra HDR 后第一轮即在同一位置崩溃；
+再次关闭后又连续通过 3 轮，共通过 6 轮普通 JPEG 切换。没有启动
+Android 构建或添加单元测试。当前手机的 Aperture 已关闭 Ultra HDR，
+作为安装新构建前的临时设置；没有刷写
+分区或重启整机。工程属性会在下次构建安装后生效，仍需确认应用不再
+获得框架派生的 JPEG/R 能力。
+
+本项验证只覆盖默认后摄 VIDEO/PHOTO 预览切换，不代表已经验证拍照
+成片、实际录像、全部倍率、前后摄切换或主摄 EEPROM 探测问题。
