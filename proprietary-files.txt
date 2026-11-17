@@ -1114,9 +1114,9 @@ odm/lib64/camera/plugins/com.xiaomi.plugin.memcpyCustomization.so|1119801abab24c
 odm/lib64/camera/plugins/com.xiaomi.plugin.memcpy.so|27cacc3e69723c747fd1f4dfada47f92542c7923
 odm/lib64/camera/plugins/com.xiaomi.plugin.miaideblur.so|9aaed49d0b3494ec06beb23383ce70912dfcfe5c
 odm/lib64/camera/plugins/com.xiaomi.plugin.miairawhdr.so|de43a8e04352735b3d4e900bbc2b360922042d21
-odm/lib64/camera/plugins/com.xiaomi.plugin.mialgoaiur.so|82f892176502ccd26027b9263430b51d3c2fed0c
+odm/lib64/camera/plugins/com.xiaomi.plugin.mialgoaiur.so|82f892176502ccd26027b9263430b51d3c2fed0c|5afeb00ecc7bf5771f16586cd76c6e38f5ec2011
 odm/lib64/camera/plugins/com.xiaomi.plugin.mialgoellc.so|c73e158e7d10a1982d253a89832cf4494e159342
-odm/lib64/camera/plugins/com.xiaomi.plugin.mialgosnsc.so|cd7394aaa0c8462c6e370acf36561b8bea61b4da
+odm/lib64/camera/plugins/com.xiaomi.plugin.mialgosnsc.so|cd7394aaa0c8462c6e370acf36561b8bea61b4da|060a58c2e4aed515f62e4b4f76568c003edafd49
 odm/lib64/camera/plugins/com.xiaomi.plugin.offlinepostproc.so|f7d44e1c59b7fd88d360cff6cb10bfc993503616
 odm/lib64/camera/plugins/com.xiaomi.plugin.portraitrepair.so|2a4a02aabca9e9f5964f7d29ad6f6a937e9d898b
 odm/lib64/camera/plugins/com.xiaomi.plugin.sdsr.so|d53d62324544e163699bc77093823999707b2239
