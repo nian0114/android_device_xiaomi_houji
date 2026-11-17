@@ -129,3 +129,70 @@ sensor、EEPROM 库、探测日志及运行时补充配置，确定正确的模�
 不要通过跳过 probe、把 B5 直接改成 B6、复制 golden 数据或写 EEPROM/persist
 校准来伪造探测成功。本次只采集初始化日志，临时日志属性已恢复；未修改
 EEPROM/persist 校准、厂商库指令或主摄配置。主摄问题仍未修复。
+
+
+## Global 原厂真机对照（2026-11-17）
+
+操作者刷回原厂后，通过 ADB 重新采集属性、CameraService 静态信息、
+预览会话和全部可读日志。当前为 Global OS3.0.305.0.WNCMIXM user 构建，
+活动槽位为 a；bootimage、vendor、odm 的版本属性均指向该 Global 版本。
+`ro.boot.hwc=CN`，SELinux 为 Enforcing，诊断使用普通 shell 权限。
+这些版本属性用于确认本次基线，不等同于所有分区内容的逐字节校验。
+
+原厂同样报告：
+
+```text
+persist.vendor.camera.mi.module.info=back_main=none;back_tele=0x62;
+persist.vendor.camera.mi.module.infoext=front_main=0x60;back_ultra=0x62;
+persist.vendor.camera.sensor.probe=<front:----S><tele:----S><ultra:----S>
+```
+
+不能仅依赖持久属性判断，因为它们可能跨刷机保留。本次同时核对了
+当前 Camera HAL 的静态元数据：
+
+| camera ID | 焦距（mm） | 活动阵列 | 识别用途 |
+| --- | --- | --- | --- |
+| 0 | 2.16 | 4080×3072 | 后置超广角 |
+| 1 | 2.83 | 3264×2448 | 前摄 |
+| 2 | 9.00 | 4080×3072 | 后置长焦 |
+| 3 | 2.16 | 4080×3072 | 后置逻辑相机，physicalIds 为 0、2 |
+| 4 | 2.83 | 3264×2448 | 前摄别名 |
+
+CameraService 总数为 7，但其余 ID 5、6 的存在不代表 OVX9000 主摄已
+注册。主摄对应的物理设备未出现在上述正常相机及后置逻辑成员中。
+
+将原厂 `com.android.camera/.Camera` 带到前台后，实际预览客户端连接
+的是 camera 0。此前应用日志也出现 `SAT lost !`，以及
+`updateUltraWideCapability: currZoomRatio = 0.6`。所以“原厂能显示后摄
+画面”不能作为主摄正常的证明。本次 crash buffer 为空，未捕获到
+provider native 崩溃；这不代表已经验证全部倍率、拍照或录像功能。
+
+结论：主摄未识别在此次 Global 原厂基线上同样存在，不能继续把它
+归因于 Lineage 独有的 HAL/内核适配问题。但本机原先使用的是国行
+OS3.0.307，尚未取得该版本的正常运行时对照，因此也不能据此判定
+硬件损坏。下一步应以原先国行完整固件验证主摄，再决定是否继续追查
+地区/版本配置或硬件、校准路径。
+
+本次原厂日志没有捕获到初始化阶段的 EEPROM 比较过程，不能宣称已在
+原厂重新测得 B6/B5 不匹配。原厂 shell 无权读取 camera 库、provider
+maps 和私有校准目录，未绕过这些限制；未修改属性、库、EEPROM/persist，
+未刷写分区、重启服务或整机，也未拍摄。没有启动 ROM 编译。
+
+
+### 原厂倍率界面与活动镜头
+
+操作者反馈界面提供 0.6×、1×、2×、3.2×，滑动最高到 10×。为避免
+仅凭按钮判断硬件，进一步采集界面和当前会话的 request/result 元数据：
+
+| 原厂界面档位 | 活动 camera ID | lens.focalLength（mm） | control.zoomRatio |
+| --- | --- | --- | --- |
+| 1× | 0 | 2.16 | 1.66666663 |
+| 3.2×（操作者手动切换） | 0 | 2.16 | 5.33333302 |
+
+两次预览均落在超广角上，zoomRatio 分别约为界面倍率除以 0.6，
+说明当前观察到的是超广角数字变焦，不能把 1× 按钮当作 OVX9000
+已经工作的证据。该结论仅覆盖这两次预览；不能据此断言所有光照、
+模式和倍率下均不会使用长焦。没有验证照片成片或录制视频。
+
+原厂限制 ADB input 注入，首次点击请求被拒绝，未成功切换档位；
+3.2×由操作者手动选择。没有修改开发者安全设置来绕过该限制。
