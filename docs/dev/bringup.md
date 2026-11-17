@@ -4,6 +4,7 @@
 
 - Android 主树、houji、sm8650-common：`lineage-23.2`。
 - Vendor：用户提供的国际版 `OS3.0.305.0.WNCMIXM` 完整 Fastboot 包；设备与 common 从同一个 dump 提取，IMS 不再使用旧国行版。
+- 国行测试机基带例外：`modem` 与 `modemfirmware` 固定为原机国行 `OS3.0.307.0.WNCCNXM` 配对，原因与验证方法见 [基带说明](radio-firmware.md)。
 - Vendor 安全补丁：`2026-10-01`。内核安全补丁不据此升级，仍需核查实际源码补丁。
 - 内核源码：MiCode `shennong-u-oss`，当前为 `6.1.25`；原始提交 `317e609aa4fb`。
 - 固件原有内核：`6.1.157-android14-11-g78a0a76cd7b7-ab15497637`。

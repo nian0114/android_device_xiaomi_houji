@@ -12,8 +12,12 @@ featenabler.mbn:featenabler.img;AB|5fb697acc2e3e9f010babf052bdd6c589709c65c
 hypvmperformance.mbn:hyp.img;AB|89b84ee1133ab92ac7e9c706a2eed77f45b03866
 imagefv.elf:imagefv.img;AB|f6b69ccd462d39707c9ff04c700f51a5bab46535
 keymint.mbn:keymaster.img;AB|1a4149813fed48e9fe1dbdd6c18ab11904a8c351
-NON-HLOS.bin:modem.img;AB|e407514069250df67f795faaa8c8d9d5aeb8b5aa
-MODEM-FW.bin:modemfirmware.img;AB|ad11033c95165e61b244aa8c8edb0fdf403ad72f
+# China OS3.0.307.0.WNCCNXM radio pair for the CN bring-up device.
+# Keep both hashes pinned when extracting userspace blobs from Global ROMs.
+NON-HLOS.bin:modem.img;AB|1452d0e8504fb45aa1426abb9eb10074f2d8794b
+MODEM-FW.bin:modemfirmware.img;AB|429cbcf52b85e279b4e4e9b93288e53e518dc943
+
+# Remaining firmware: Global OS3.0.305.0.WNCMIXM.
 qupv3fw.elf:qupfw.img;AB|4cef06eec51e9edee048d7d3b277fcfb4c579af3
 shrm.elf:shrm.img;AB|3eba6d53a793d5a64a6cb41802fca00112a455bb
 tz.mbn:tz.img;AB|ab77d07964f4763464721268a98008a8cd62d7f1
