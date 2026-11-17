@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
+
+cc_library_shared {
+    name: "libqtivibratoreffect.houji",
+    vendor: true,
+    srcs: ["effect.cpp"],
+    cflags: ["-Wall", "-Werror"],
+    header_libs: ["libqtivibratoreffect_headers"],
+    shared_libs: [
+        "android.hardware.vibrator-V2-ndk",
+        "libbase",
+    ],
+}

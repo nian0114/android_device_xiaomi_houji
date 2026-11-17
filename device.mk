@@ -11,6 +11,9 @@ $(call inherit-product, device/xiaomi/sm8650-common/common.mk)
 # Get non-open-source specific aspects
 $(call inherit-product, vendor/xiaomi/houji/houji-vendor.mk)
 
+# Vibrator: only expose primitives backed by device waveform files.
+$(call soong_config_set,qti_vibrator,effect_lib,//device/xiaomi/houji:libqtivibratoreffect.houji)
+
 # Euicc
 PRODUCT_PACKAGES += \
     XiaomiEuicc \
