@@ -61,6 +61,38 @@ Scudo 中止 provider。失败地址位于 `camera.qcom.so + 0x2f8bd0`。
 内存分配器、Aperture 或平台源码。重新开启该能力前，必须先修正并
 验证厂商 P010/HLG 拍照路径的输出所有权。
 
+### 原厂配置与二进制基线
+
+进一步从两份官方包的 `/odm/etc/build.prop` 核对到相同限制：
+
+| 官方版本 | 原件行号 | 属性 |
+| --- | --- | --- |
+| Global OS3.0.305.0.WNCMIXM | 330 | `ro.camera.disableJpegR=true` |
+| CN OS3.0.307.0.WNCCNXM | 337 | `ro.camera.disableJpegR=true` |
+
+Global 的属性文件还通过 `dump.erofs` 获得原始 `odm.img` 的 extent，
+直接读取并解压后，与解包文件逐字节核对一致。CN 的属性文件从用户
+提供的完整 ODM 镜像中选择性提取，确认版本号及属性。
+
+因此该设备属性是补回原厂已有的兼容性基线，而不是从原厂已开放的
+框架能力中额外裁掉 JPEG/R。它解释了移植后 Aperture 为什么进入
+原厂配置本来就禁止派生的 P010/HLG 拍照路径。它不能据此说明原厂
+相机应用如何实现其自身的 HDR 成片，后者需单独验证。
+
+对当前 Global 基线的五份关键库逐一核对，工程与官方原件的 `.text`
+指令区均一致：
+
+- `camera.qcom.so`
+- `com.qti.chi.override.so`
+- `com.qti.chiusecaseselector.so`
+- `com.qti.feature2.mfsr.so`
+- `com.qti.feature2.gs.sm8650.so`
+
+其 ELF 依赖表差异对应已有的 allocator V1→V2 适配及 processgroup
+shim。`camxoverridesettings.txt` 与 Global 原件逐字节一致。这六个
+工程文件的 SHA-256 也与当前真机一致，排除了本次核对使用错误安装
+版本的情况。以上范围不代表整个相机依赖闭包均已完成 ABI 验证。
+
 ### 验证范围
 
 真机对照通过 Aperture 的 Ultra HDR 开关选择对应流配置，并检查
