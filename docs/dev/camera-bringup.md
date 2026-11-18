@@ -257,3 +257,33 @@ probe 日志及 maps 读取，因此本次未取得其具体库加载轨迹。
 本次只执行文件提取、makefile 生成和静态核对，没有构建 ROM。安装新
 Lineage 构建后，仍需验证 wide 探测、主摄物理元数据、1×预览、拍照、
 录像及倍率切换；不能把国行原厂的成功直接计作 Lineage 修复已通过。
+
+
+## Aperture 后摄快捷倍率（2026-11-18）
+
+操作者在 PHOTO/VIDEO 往返后反馈只剩 1×。进一步确认双指仍能缩放，
+当时 provider PID 为 1740、cameraserver PID 为 2543，预览持续输出，
+没有新增崩溃。该现象不能等同于 HAL 变焦失效，也不能仅凭反馈时机
+断定配置在模式切换时丢失。
+
+Aperture 的默认 `config_logicalZoomRatios` 为空，`Camera.fromCameraX()`
+只添加 1×；默认不显示辅助物理相机，因此缺少设备覆盖时只有一个
+后摄按钮。为 houji 添加 product 分区的 `ApertureOverlayHouji`，给正常
+相机 ID 0 配置 0.6×、2×、3.2×，1×由应用自动补入。各档位直接使用
+相同数值的标准 `CONTROL_ZOOM_RATIO`，范围在 HAL 声明的 0.6–10 内。
+2×为裁切预设；3.2×按钮也不保证 HAL 在所有场景选择长焦。
+
+使用同资源的临时动态覆盖，在当前国行 vendor 的 Lineage 真机上完成
+VIDEO→PHOTO 两轮，每个模式依次点选四档，共 16 次。所有最后发送
+请求的 zoomRatio 与按钮一致，四次模式界面快照都保留四个按钮。
+采到完整结果元数据时，0.6×使用 2.16 mm 超广角，1×使用 6.55 mm
+主摄；当前环境下 3.2×结果仍为 6.55 mm，长焦切换条件需另行验证。
+部分 dumpsys 快照只捕获到 HAL 的 partial result，不能把缺少 zoomRatio
+字段判为没有输出。两轮前后 provider/cameraserver PID 未变，crash
+buffer 为空。
+
+正式静态覆盖通过 AAPT2 资源编译/链接及 idmap2 的 product 分区策略
+检查。修改只在 houji 设备仓库，没有修改 Aperture、框架或厂商库。
+临时动态覆盖在验证后卸载，正式配置需要重新构建并安装 ROM 后生效。
+本次未拍摄照片或录制视频，不能据此宣称成片、编码或所有镜头切换
+已验证。原有 OIS 空数据等日志仍需按实际功能单独关联，不作屏蔽。

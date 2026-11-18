@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: 2026 The LineageOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Logical rear camera 0 covers all three rear sensors. Aperture adds 1x.
+         The 2x entry is a crop preset, not an additional physical camera. -->
+    <string-array name="config_logicalZoomRatios" translatable="false">
+        <item>0</item> <item>0.6</item> <item>0.6</item>
+        <item>0</item> <item>2.0</item> <item>2.0</item>
+        <item>0</item> <item>3.2</item> <item>3.2</item>
+    </string-array>
+</resources>
